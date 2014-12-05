@@ -1,0 +1,16 @@
+[
+{
+  "modid": "bigfactories",
+  "name": "Big Factories",
+  "description": "The bigger the better, right? So, why not make all your silly one-block factory machines bigger!",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["allout58"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
