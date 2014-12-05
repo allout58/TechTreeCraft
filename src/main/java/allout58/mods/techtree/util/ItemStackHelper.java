@@ -1,4 +1,4 @@
-package allout58.mods.bigfactories.util;
+package allout58.mods.techtree.util;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
@@ -8,7 +8,7 @@ import net.minecraft.world.World;
 import java.util.Random;
 
 /**
- * Created by James Hollowell on 7/22/2014.
+ * Created by James Hollowell on 12/5/2014.
  */
 public class ItemStackHelper
 {

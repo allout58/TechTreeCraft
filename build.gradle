@@ -16,6 +16,7 @@ buildscript {
 }
 
 apply plugin: 'forge'
+apply plugin: 'checkstyle'
 
 boolean fullbuild=true
 

@@ -1,12 +1,15 @@
-package allout58.mods.bigfactories.util;
+package allout58.mods.techtree.util;
 
-import allout58.mods.bigfactories.BigFactories;
-import allout58.mods.bigfactories.lib.ModInfo;
+import allout58.mods.techtree.TechTree;
+import allout58.mods.techtree.lib.ModInfo;
 import com.google.gson.Gson;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
+import sun.nio.cs.ext.MacArabic;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,10 +17,12 @@ import java.net.URL;
 import java.net.URLConnection;
 
 /**
- * Created by James Hollowell on 7/31/2014.
+ * Created by James Hollowell on 12/5/2014.
  */
 public class VersionChecker implements Runnable
 {
+    private static final Marker VCMARKER = MarkerManager.getMarker("VersionChecker");
+
     private static final int CHECK_COUNT = 3;
     private boolean needsUpdate = false;
     private String changelog = "";
@@ -50,7 +55,7 @@ public class VersionChecker implements Runnable
 
     public void CheckVersion()
     {
-        local.readFromString(BigFactories.version);
+        local.readFromString(TechTree.version);
         for (int i = 0; i < CHECK_COUNT; i++)
         {
             try

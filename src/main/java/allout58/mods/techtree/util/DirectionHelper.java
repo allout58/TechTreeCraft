@@ -1,11 +1,11 @@
-package allout58.mods.bigfactories.util;
+package allout58.mods.techtree.util;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.util.ForgeDirection;
 
 /**
- * Created by James Hollowell on 8/3/2014.
+ * Created by James Hollowell on 12/5/2014.
  */
 public class DirectionHelper
 {

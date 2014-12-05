@@ -1,7 +1,7 @@
-package allout58.mods.bigfactories.proxy;
+package allout58.mods.techtree.proxy;
 
 /**
- * Created by James Hollowell on 7/31/2014.
+ * Created by James Hollowell on 12/5/2014.
  */
 public class ClientProxy implements ISidedProxy
 {
