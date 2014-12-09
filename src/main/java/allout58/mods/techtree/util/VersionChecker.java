@@ -20,22 +20,22 @@ import java.net.URLConnection;
  */
 public class VersionChecker implements Runnable
 {
+    public static final VersionChecker instance = new VersionChecker();
+
     private static final Marker VCMARKER = MarkerManager.getMarker("VersionChecker");
+    private static boolean HasBeenNotified = false;
 
     private static final int CHECK_COUNT = 3;
     private boolean needsUpdate = false;
     private String changelog = "";
     private Version local = new Version(0, 0, 0, 0);
     private Version remote = null;
-    private static boolean HasBeenNotified = false;
 
     class RemoteVersion
     {
         public int[] version = new int[] { 0, 0, 0, 0 };
         public String changelog = "";
     }
-
-    public static final VersionChecker instance = new VersionChecker();
 
     //https://github.com/pahimar/Equivalent-Exchange-3/blob/1.6.4/src/main/java/com/pahimar/ee3/helper/VersionHelper.java
     @SubscribeEvent
@@ -46,13 +46,13 @@ public class VersionChecker implements Runnable
             if (!HasBeenNotified && needsUpdate)
             {
                 EntityPlayer player = (EntityPlayer) event.entity;
-                player.addChatComponentMessage(new ChatComponentText("BigFactories has updated! Latest version " + remote.toString()));
+                player.addChatComponentMessage(new ChatComponentText(ModInfo.MOD_NAME + " has updated! Latest version " + remote.toString()));
                 player.addChatComponentMessage(new ChatComponentText("Changelog: " + changelog));
             }
         }
     }
 
-    public void CheckVersion()
+    public void checkVersion()
     {
         local.readFromString(TechTreeMod.version);
         for (int i = 0; i < CHECK_COUNT; i++)
@@ -93,7 +93,7 @@ public class VersionChecker implements Runnable
         LogHelper.error("BigFactories remote version check failed after %d attempts.", CHECK_COUNT);
     }
 
-    private void LogResult()
+    private void logResult()
     {
         if (needsUpdate)
         {
@@ -104,8 +104,8 @@ public class VersionChecker implements Runnable
     @Override
     public void run()
     {
-        CheckVersion();
-        LogResult();
+        checkVersion();
+        logResult();
     }
 
     public static void execute()

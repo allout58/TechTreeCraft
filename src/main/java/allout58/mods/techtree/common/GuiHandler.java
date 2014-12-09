@@ -1,5 +1,6 @@
 package allout58.mods.techtree.common;
 
+import allout58.mods.techtree.TechTreeMod;
 import allout58.mods.techtree.client.GuiTree;
 import cpw.mods.fml.common.network.IGuiHandler;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,9 +14,9 @@ public class GuiHandler implements IGuiHandler
     public static final int TREE_ID = 0;
 
     @Override
-    public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
+    public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
     {
-        switch (ID)
+        switch (id)
         {
             case TREE_ID:
                 return null;
@@ -25,12 +26,12 @@ public class GuiHandler implements IGuiHandler
     }
 
     @Override
-    public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
+    public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
     {
-        switch (ID)
+        switch (id)
         {
             case TREE_ID:
-                //return new GuiTree();
+                return new GuiTree(TechTreeMod.tree);
             default:
                 return null;
         }

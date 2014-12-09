@@ -25,6 +25,7 @@ public class TechTreeMod
 {
     public static String version = "@VERSION@";
     public static TechNode node;
+    public static TechTree tree;
 
     @SidedProxy(clientSide = "allout58.mods.techtree.proxy.ClientProxy", serverSide = "allout58.mods.techtree.proxy.ServerProxy")
     public static ISidedProxy proxy;
@@ -48,7 +49,7 @@ public class TechTreeMod
         LogHelper.logger.info(LogHelper.PREINIT, "TechTree " + version + " pre-initializing");
         //VersionChecker.execute();
         node = TreeLoader.readTree("./tree.json");
-        TechTree tree = new TechTree(node);
+        tree = new TechTree(node);
 
         /*--------------- Register Events ---------------- */
         MinecraftForge.EVENT_BUS.register(VersionChecker.instance);
