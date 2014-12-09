@@ -56,10 +56,7 @@ repositories{
 
 }
 dependencies {
-    //actually unneeded because of fancy gradle magic w/ Waila, but here for clarity
-	//compile "codechicken:NotEnoughItems:1.7.2-1.0.1:dev"
-    compile "mcp.mobius.waila:Waila:1.5.6_dev4_1.7.10:dev"
-
+    //compile "mcp.mobius.waila:Waila:1.5.3_1.7.10:dev"
 }
 processResources
 {
@@ -97,7 +94,6 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 // because the normal output has been made to be obfuscated
 task deobfJar(type: Jar) {
     from sourceSets.main.output
-    //appendix = 'deobf'
     classifier = 'deobf'
 }
 

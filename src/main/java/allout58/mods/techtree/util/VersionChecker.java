@@ -1,6 +1,6 @@
 package allout58.mods.techtree.util;
 
-import allout58.mods.techtree.TechTree;
+import allout58.mods.techtree.TechTreeMod;
 import allout58.mods.techtree.lib.ModInfo;
 import com.google.gson.Gson;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -9,7 +9,6 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import sun.nio.cs.ext.MacArabic;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -55,7 +54,7 @@ public class VersionChecker implements Runnable
 
     public void CheckVersion()
     {
-        local.readFromString(TechTree.version);
+        local.readFromString(TechTreeMod.version);
         for (int i = 0; i < CHECK_COUNT; i++)
         {
             try
