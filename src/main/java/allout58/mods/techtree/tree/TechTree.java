@@ -17,7 +17,7 @@ public class TechTree
     private TechNode head;
     private int depth = 0;
     private int maxWidth = 0;
-    private ArrayList<HashSet<TechNode>> list  = new ArrayList<HashSet<TechNode>>(depth);
+    private ArrayList<HashSet<TechNode>> list = new ArrayList<HashSet<TechNode>>(depth);
     private HashSet<TechNode> nodes = new HashSet<TechNode>();
 
     public TechTree(TechNode head)
@@ -34,6 +34,8 @@ public class TechTree
         doMaxWidth();
         log.info("Depth found: " + depth);
         log.info("Max Width found: " + maxWidth);
+        doMaxWidth2();
+        log.info("Max widnt 2: " + maxWidth);
     }
 
     private void doMaxDepth(TechNode node, int currDepth)
@@ -58,6 +60,12 @@ public class TechTree
         }
         for (int i = 0; i < depth; i++)
             maxWidth = Math.max(list.get(i).size(), maxWidth);
+    }
+
+    private void doMaxWidth2()
+    {
+        for (TechNode node : nodes)
+            maxWidth = Math.max(maxWidth, node.getChildren().size());
     }
 
     public int getDepth()

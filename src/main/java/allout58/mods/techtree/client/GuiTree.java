@@ -25,8 +25,8 @@ public class GuiTree extends GuiScreen
     public static final int MAX_NODE_WIDTH = 60;
     public static final int MAX_NODE_HEIGHT = 40;
 
-    public static final int PAD_X = 10;
-    public static final int PAD_Y = 10;
+    public static final int PAD_X = 20;
+    public static final int PAD_Y = 15;
 
     public int xStart;
 
@@ -57,21 +57,20 @@ public class GuiTree extends GuiScreen
         for (int i = 0; i < tree.getDepth(); i++)
             xCoords.add(i, nodeWidth * i + PAD_X * (i + 1) + xStart);
 
+        int nodeHeight = (HEIGHT - PAD_Y * tree.getMaxWidth()) / tree.getMaxWidth();
+        nodeHeight = Math.max(nodeHeight, MIN_NODE_HEIGHT);
+        nodeHeight = Math.min(nodeHeight, MAX_NODE_HEIGHT);
+
         for (HashSet<TechNode> list : tree.getList())
         {
             int treeWidth = list.size();
-            int nodeHeight = (HEIGHT - PAD_Y * tree.getMaxWidth()) / tree.getMaxWidth();
-            nodeHeight = Math.max(nodeHeight, MIN_NODE_HEIGHT);
-            nodeHeight = Math.min(nodeHeight, MAX_NODE_HEIGHT);
 
             List<Integer> yCoords = new ArrayList<Integer>(treeWidth);
 
             for (int i = 0; i < treeWidth; i++)
                 yCoords.add(i, nodeHeight * i + PAD_Y * (i + 1));
 
-            int yStart = (height - HEIGHT) / 2 + ((tree.getMaxWidth() - treeWidth - 1) * nodeHeight + (treeWidth - tree.getMaxWidth()) * PAD_Y) / 2 + 20;
-
-            //System.out.println(String.format("yStart: %d HEIGHT: %d height: %d", yStart, HEIGHT, height));
+            int yStart = (height - HEIGHT) / 2 + ((tree.getMaxWidth() - treeWidth - 1) * nodeHeight + (treeWidth - tree.getMaxWidth()) * PAD_Y) / 2 + 15;
 
             Iterator<TechNode> it = list.iterator();
             for (int i = 0; i < treeWidth; i++)
@@ -83,24 +82,13 @@ public class GuiTree extends GuiScreen
                 buttonList.add(btn);
             }
         }
-
-        //buttonList.add(next = new GuiButtonPageChange(BOOK_BTN_NEXT, bookXStart + WIDTH - 26, 210, false));
-        //buttonList.add(prev = new GuiButtonPageChange(BOOK_BTN_PREV, bookXStart + 10, 210, true));
     }
 
     @Override
     protected void actionPerformed(GuiButton button)
     {
-        //        switch (button.id)
-        //        {
-        //            case BOOK_BTN_NEXT:
-        //                pageIndex++;
-        //                break;
-        //            case BOOK_BTN_PREV:
-        //                --pageIndex;
-        //                break;
-        //        }
-        //        updateButtonState();
+        if (button instanceof GuiButtonTechNode)
+            ((GuiButtonTechNode) button).nextMode();
     }
 
     //    private void updateButtonState()
@@ -139,19 +127,24 @@ public class GuiTree extends GuiScreen
     {
         //mc.renderEngine.bindTexture(Textures.TREE_BACKGROUND);
         //drawTexturedModalRect(xStart, 15, 0, 0, WIDTH, HEIGHT);
-        drawRect(xStart, 15, xStart + WIDTH, 15 + HEIGHT, 0xBB999999);
+        drawRect(xStart, 15, xStart + WIDTH, 15 + HEIGHT, 0xF0999999);
     }
 
     protected void drawForeground()
     {
-        GL11.glPushMatrix();
-        GL11.glColor3f(1, 0, 0);
+        drawTreeLines();
+    }
 
-        GL11.glBegin(GL11.GL_LINE_STRIP);
-        GL11.glVertex3d(xStart, 15, 0.0D);
-        GL11.glVertex3d(xStart + WIDTH, 15 + HEIGHT, 0.0D);
-        GL11.glEnd();
-        GL11.glPopMatrix();
+    private void drawTreeLines()
+    {
+        //        GL11.glPushMatrix();
+        //        GL11.glColor3f(1, 0, 0);
+        //
+        //        GL11.glBegin(GL11.GL_LINE_STRIP);
+        //        GL11.glVertex3d(xStart, 15, 0.0D);
+        //        GL11.glVertex3d(xStart + WIDTH, 15 + HEIGHT, 0.0D);
+        //        GL11.glEnd();
+        //        GL11.glPopMatrix();
 
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
