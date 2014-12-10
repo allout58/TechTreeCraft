@@ -4,6 +4,7 @@ import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,8 +16,8 @@ import java.util.List;
  */
 public class GuiTree extends GuiScreen
 {
-    public static final int WIDTH = 90;
-    public static final int HEIGHT = 228;
+    public static final int WIDTH = 300;
+    public static final int HEIGHT = 240;
 
     public static final int MIN_NODE_WIDTH = 40;
     public static final int MIN_NODE_HEIGHT = 20;
@@ -59,20 +60,24 @@ public class GuiTree extends GuiScreen
         for (HashSet<TechNode> list : tree.getList())
         {
             int treeWidth = list.size();
-            int nodeHeight = (HEIGHT - PAD_Y * treeWidth) / treeWidth;
+            int nodeHeight = (HEIGHT - PAD_Y * tree.getMaxWidth()) / tree.getMaxWidth();
             nodeHeight = Math.max(nodeHeight, MIN_NODE_HEIGHT);
             nodeHeight = Math.min(nodeHeight, MAX_NODE_HEIGHT);
 
             List<Integer> yCoords = new ArrayList<Integer>(treeWidth);
 
             for (int i = 0; i < treeWidth; i++)
-                yCoords.add(i, nodeHeight * i + PAD_Y * (i + 1) + 20);
+                yCoords.add(i, nodeHeight * i + PAD_Y * (i + 1));
+
+            int yStart = (height - HEIGHT) / 2 + ((tree.getMaxWidth() - treeWidth - 1) * nodeHeight + (treeWidth - tree.getMaxWidth()) * PAD_Y) / 2 + 20;
+
+            //System.out.println(String.format("yStart: %d HEIGHT: %d height: %d", yStart, HEIGHT, height));
 
             Iterator<TechNode> it = list.iterator();
             for (int i = 0; i < treeWidth; i++)
             {
                 TechNode node = it.next();
-                GuiButtonTechNode btn = new GuiButtonTechNode(node.getId(), xCoords.get(node.getDepth() - 1), yCoords.get(i), nodeWidth, nodeHeight, node);
+                GuiButtonTechNode btn = new GuiButtonTechNode(node.getId(), xCoords.get(node.getDepth() - 1), yCoords.get(i) + yStart, nodeWidth, nodeHeight, node);
 
                 buttons[node.getId()] = btn;
                 buttonList.add(btn);
@@ -123,17 +128,53 @@ public class GuiTree extends GuiScreen
     protected void keyTyped(char c, int key)
     {
         super.keyTyped(c, key);
+        if (c == 'r')
+        {
+            for (GuiButton btn : buttons)
+                btn.visible = !btn.visible;
+        }
     }
 
     protected void drawBackground()
     {
-        mc.renderEngine.bindTexture(Textures.TREE_BACKGROUND);
-        drawTexturedModalRect(xStart, 5, 0, 0, WIDTH, HEIGHT);
+        //mc.renderEngine.bindTexture(Textures.TREE_BACKGROUND);
+        //drawTexturedModalRect(xStart, 15, 0, 0, WIDTH, HEIGHT);
+        drawRect(xStart, 15, xStart + WIDTH, 15 + HEIGHT, 0xBB999999);
     }
 
     protected void drawForeground()
     {
+        GL11.glPushMatrix();
+        GL11.glColor3f(1, 0, 0);
 
+        GL11.glBegin(GL11.GL_LINE_STRIP);
+        GL11.glVertex3d(xStart, 15, 0.0D);
+        GL11.glVertex3d(xStart + WIDTH, 15 + HEIGHT, 0.0D);
+        GL11.glEnd();
+        GL11.glPopMatrix();
+
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glLineWidth(2.5f);
+
+        for (GuiButtonTechNode btn : buttons)
+        {
+            for (int node : btn.getNode().getParentID())
+            {
+                GL11.glPushMatrix();
+                GL11.glColor3f(.81f, 0.01F, 0);
+                GL11.glBegin(GL11.GL_LINE_STRIP);
+                GL11.glVertex3d(btn.getInX(), btn.getInY(), 0.0D);
+                GL11.glVertex3d(buttons[node].getOutX(), buttons[node].getOutY(), 0.0D);
+                GL11.glEnd();
+                GL11.glPopMatrix();
+            }
+        }
+
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
     }
 
     protected void drawStartScreen()
