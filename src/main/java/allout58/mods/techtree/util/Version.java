@@ -5,54 +5,54 @@ package allout58.mods.techtree.util;
  */
 public class Version implements Comparable<Version>
 {
-    private int Major = 0;
-    private int Minor = 0;
-    private int Build = 0;
-    private int Revision = 0;
+    private int major = 0;
+    private int minor = 0;
+    private int build = 0;
+    private int revision = 0;
+
+    public Version(int major, int minor, int build, int revision)
+    {
+        this.major = major;
+        this.minor = minor;
+        this.build = build;
+        this.revision = revision;
+    }
 
     public int getMajor()
     {
-        return Major;
+        return major;
     }
 
     public int getMinor()
     {
-        return Minor;
+        return minor;
     }
 
     public int getBuild()
     {
-        return Build;
+        return build;
     }
 
     public int getRevision()
     {
-        return Revision;
-    }
-
-    public Version(int major, int minor, int build, int revision)
-    {
-        Major = major;
-        Minor = minor;
-        Build = build;
-        Revision = revision;
+        return revision;
     }
 
     @Override
     public String toString()
     {
-        return Major + "." + Minor + "." + Build + (Revision != 0 ? "-rev" + Revision : "");
+        return major + "." + minor + "." + build + (revision != 0 ? "-rev" + revision : "");
     }
 
     public void readFromString(String s)
     {
-        String pre = (s.contains("-rev") ? s.split("-rev")[0] : s);
-        Major = Integer.parseInt(pre.split("\\.")[0]);
-        Minor = Integer.parseInt(pre.split("\\.")[1]);
-        Build = Integer.parseInt(pre.split("\\.")[2]);
+        String pre = s.contains("-rev") ? s.split("-rev")[0] : s;
+        major = Integer.parseInt(pre.split("\\.")[0]);
+        minor = Integer.parseInt(pre.split("\\.")[1]);
+        build = Integer.parseInt(pre.split("\\.")[2]);
         if (s.contains("-rev"))
         {
-            Revision = Integer.parseInt(s.split("-rev")[1]);
+            revision = Integer.parseInt(s.split("-rev")[1]);
         }
     }
 
@@ -67,23 +67,23 @@ public class Version implements Comparable<Version>
     @Override
     public int compareTo(Version o)
     {
-        final int BEFORE = -1;
-        final int EQUAL = 0;
-        final int AFTER = 1;
-        if (this == o) return EQUAL;
+        final int before = -1;
+        final int equal = 0;
+        final int after = 1;
+        if (this == o) return equal;
 
-        if (this.Major < o.Major) return BEFORE;
-        if (this.Major > o.Major) return AFTER;
+        if (this.major < o.major) return before;
+        if (this.major > o.major) return after;
 
-        if (this.Minor < o.Minor) return BEFORE;
-        if (this.Minor > o.Minor) return AFTER;
+        if (this.minor < o.minor) return before;
+        if (this.minor > o.minor) return after;
 
-        if (this.Build < o.Build) return BEFORE;
-        if (this.Build > o.Build) return AFTER;
+        if (this.build < o.build) return before;
+        if (this.build > o.build) return after;
 
-        if (this.Revision < o.Revision) return BEFORE;
-        if (this.Revision > o.Revision) return AFTER;
+        if (this.revision < o.revision) return before;
+        if (this.revision > o.revision) return after;
 
-        return EQUAL;
+        return equal;
     }
 }

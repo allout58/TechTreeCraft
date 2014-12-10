@@ -16,16 +16,17 @@ public class ItemStackHelper
 
     /**
      * Spawn an item stack in the world from a specific location
+     *
      * @param stack The stack to spawn
      * @param world The world to spawn into
-     * @param x X coordinate to start at
-     * @param y Y coordinate to start at
-     * @param z Z coordinate to start at
+     * @param x     X coordinate to start at
+     * @param y     Y coordinate to start at
+     * @param z     Z coordinate to start at
      */
     public static void spawnItemStackInWorld(ItemStack stack, World world, int x, int y, int z)
     {
         if (world.isRemote) return; //only spawn entities on the server
-        if(stack!=null)
+        if (stack != null)
         {
             float f = random.nextFloat() * 0.8F + 0.1F;
             float f1 = random.nextFloat() * 0.8F + 0.1F;
