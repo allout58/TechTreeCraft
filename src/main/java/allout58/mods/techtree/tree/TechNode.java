@@ -84,7 +84,7 @@ public class TechNode implements INode
      */
     public String getName()
     {
-        return name + "-" + id;
+        return name;
     }
 
     /**

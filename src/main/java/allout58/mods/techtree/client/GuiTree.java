@@ -1,11 +1,12 @@
 package allout58.mods.techtree.client;
 
+import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.INode;
 import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
+import allout58.mods.techtree.util.RenderingHelper;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -139,37 +140,19 @@ public class GuiTree extends GuiScreen
 
     private void drawTreeLines()
     {
-        //        GL11.glPushMatrix();
-        //        GL11.glColor3f(1, 0, 0);
-        //
-        //        GL11.glBegin(GL11.GL_LINE_STRIP);
-        //        GL11.glVertex3d(xStart, 15, 0.0D);
-        //        GL11.glVertex3d(xStart + WIDTH, 15 + HEIGHT, 0.0D);
-        //        GL11.glEnd();
-        //        GL11.glPopMatrix();
-
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_LINE_SMOOTH);
-        GL11.glLineWidth(2.5f);
 
         for (GuiButtonTechNode btn : buttons)
         {
             for (int node : btn.getNode().getParentID())
             {
-                GL11.glPushMatrix();
-                GL11.glColor3f(0f, 0f, 0f);
-                GL11.glBegin(GL11.GL_LINE_STRIP);
-                GL11.glVertex3d(btn.getInX(), btn.getInY(), 0.0D);
-                GL11.glVertex3d(buttons[node].getOutX(), buttons[node].getOutY(), 0.0D);
-                GL11.glEnd();
-                GL11.glPopMatrix();
+                RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), buttons[node].getOutX(), buttons[node].getOutY(), 2.5f, 0);
+            }
+            if (btn.getNode().getClass().equals(FakeNode.class))
+            {
+                RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), btn.getOutX(), btn.getOutY(), 2.5f, 0);
             }
         }
 
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glDisable(GL11.GL_LINE_SMOOTH);
     }
 
     protected void drawStartScreen()

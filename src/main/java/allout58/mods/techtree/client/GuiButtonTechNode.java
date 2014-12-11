@@ -1,5 +1,6 @@
 package allout58.mods.techtree.client;
 
+import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.INode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -56,8 +57,8 @@ public class GuiButtonTechNode extends GuiButton
     {
         super(id, x, y, width, height, "");
 
-        //if (node instanceof FakeNode)
-        //    this.visible = this.enabled = false;
+        if (node instanceof FakeNode)
+            this.visible = this.enabled = false;
 
         this.node = node;
 
@@ -111,9 +112,9 @@ public class GuiButtonTechNode extends GuiButton
             GL11.glScaled(.5, .5, .5);
             GL11.glTranslated(xPosition, yPosition, 0);
             fontRenderer.drawString(mode.name(), xPosition + 2, yPosition + 10 + fontRenderer.FONT_HEIGHT, 0xFFFFFFFF, false);
-            fontRenderer.drawString(mouseOver ? "mouseOver" : "", xPosition + 2, yPosition + 18 + fontRenderer.FONT_HEIGHT * 2, 0xFFFFFFFF, false);
+            //fontRenderer.drawString(mouseOver ? "mouseOver" : "", xPosition + 2, yPosition + 18 + fontRenderer.FONT_HEIGHT * 2, 0xFFFFFFFF, false);
             //fontRenderer.drawString(ArrayUtils.toString(node.getChildren().toArray(), "nochildren"), xPosition + 2, yPosition + 26 + fontRenderer.FONT_HEIGHT * 3, 0xFFFFFFFF, false);
-            fontRenderer.drawString(ArrayUtils.toString(node.getParentID().toArray(), "noParents"), xPosition + 2, yPosition + 26 + fontRenderer.FONT_HEIGHT * 3, 0xFFFFFFFF, false);
+            //fontRenderer.drawString(ArrayUtils.toString(node.getParentID().toArray(), "noParents"), xPosition + 2, yPosition + 26 + fontRenderer.FONT_HEIGHT * 3, 0xFFFFFFFF, false);
 
 
             GL11.glPopMatrix();
