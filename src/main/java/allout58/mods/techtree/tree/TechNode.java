@@ -8,13 +8,13 @@ import java.util.List;
 /**
  * Created by James Hollowell on 12/6/2014.
  */
-public class TechNode
+public class TechNode implements INode
 {
     public static int NEXT_ID = 0;
 
     //Basic tree structure
-    private ArrayList<TechNode> parents = new ArrayList<TechNode>();
-    private ArrayList<TechNode> children = new ArrayList<TechNode>();
+    private ArrayList<INode> parents = new ArrayList<INode>();
+    private ArrayList<INode> children = new ArrayList<INode>();
     private ArrayList<Integer> parentID = new ArrayList<Integer>();
     private int id = -1;
     private int depth = -1;
@@ -48,7 +48,7 @@ public class TechNode
      *
      * @param parent The parent node
      */
-    public void addParentNode(TechNode parent)
+    public void addParentNode(INode parent)
     {
         parents.add(parent);
     }
@@ -58,17 +58,18 @@ public class TechNode
      *
      * @param child The child node
      */
-    public void addChildNode(TechNode child)
+    public void addChildNode(INode child)
     {
         children.add(child);
     }
 
-    /** Setup this node
+    /**
+     * Setup this node
      *
-     * @param name The node's name. Used as a header in-game
+     * @param name       The node's name. Used as a header in-game
      * @param scienceReq Science points required to unlock this node
-     * @param desc Description of the node.
-     * @param lockItems Items locked by this node. Unlocking the node allows them to be crafted again.
+     * @param desc       Description of the node.
+     * @param lockItems  Items locked by this node. Unlocking the node allows them to be crafted again.
      */
     public void setup(String name, int scienceReq, String desc, Item[] lockItems)
     {
@@ -79,16 +80,14 @@ public class TechNode
     }
 
     /**
-     *
      * @return The node's name.
      */
     public String getName()
     {
-        return name;
+        return name + "-" + id;
     }
 
     /**
-     *
      * @return The node's description
      */
     public String getDescription()
@@ -97,7 +96,6 @@ public class TechNode
     }
 
     /**
-     *
      * @return The science required to unlock this node
      */
     public int getScienceRequired()
@@ -106,7 +104,6 @@ public class TechNode
     }
 
     /**
-     *
      * @return The node's ID used for initial linking and (de)serialization
      */
     public int getId()
@@ -114,7 +111,8 @@ public class TechNode
         return id;
     }
 
-    /**Should only be used during (de)serialization
+    /**
+     * Should only be used during (de)serialization
      *
      * @return The node's list of parents (in ID form)
      */
@@ -124,16 +122,14 @@ public class TechNode
     }
 
     /**
-     *
      * @return The node's list of parents (in Node form)
      */
-    public List<TechNode> getParents()
+    public List<INode> getParents()
     {
         return parents;
     }
 
     /**
-     *
      * @return The items locked by this node
      */
     public Item[] getLockedItems()
@@ -141,7 +137,7 @@ public class TechNode
         return lockedItems;
     }
 
-    public List<TechNode> getChildren()
+    public List<INode> getChildren()
     {
         return children;
     }

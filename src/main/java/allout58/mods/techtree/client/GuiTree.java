@@ -1,5 +1,6 @@
 package allout58.mods.techtree.client;
 
+import allout58.mods.techtree.tree.INode;
 import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
 import net.minecraft.client.gui.GuiButton;
@@ -37,7 +38,7 @@ public class GuiTree extends GuiScreen
     {
         super();
         this.tree = tree;
-        buttons = new GuiButtonTechNode[tree.getNodes().size()];
+        buttons = new GuiButtonTechNode[TechNode.NEXT_ID];
     }
 
     @SuppressWarnings("unchecked")
@@ -61,22 +62,23 @@ public class GuiTree extends GuiScreen
         nodeHeight = Math.max(nodeHeight, MIN_NODE_HEIGHT);
         nodeHeight = Math.min(nodeHeight, MAX_NODE_HEIGHT);
 
-        for (HashSet<TechNode> list : tree.getList())
+        List<Integer> yCoords = new ArrayList<Integer>(tree.getMaxWidth());
+
+        for (int i = 0; i < tree.getMaxWidth(); i++)
+            yCoords.add(i, nodeHeight * i + PAD_Y * (i + 1));
+
+        for (HashSet<INode> list : tree.getList())
         {
             int treeWidth = list.size();
 
-            List<Integer> yCoords = new ArrayList<Integer>(treeWidth);
+            //int yStart = (height - HEIGHT) / 2 + ((tree.getMaxWidth() - treeWidth - 1) * nodeHeight + (treeWidth - tree.getMaxWidth()) * PAD_Y) / 2 + 15;
+            int yLoc = (tree.getMaxWidth() - list.size()) / 2;
 
-            for (int i = 0; i < treeWidth; i++)
-                yCoords.add(i, nodeHeight * i + PAD_Y * (i + 1));
-
-            int yStart = (height - HEIGHT) / 2 + ((tree.getMaxWidth() - treeWidth - 1) * nodeHeight + (treeWidth - tree.getMaxWidth()) * PAD_Y) / 2 + 15;
-
-            Iterator<TechNode> it = list.iterator();
+            Iterator<INode> it = list.iterator();
             for (int i = 0; i < treeWidth; i++)
             {
-                TechNode node = it.next();
-                GuiButtonTechNode btn = new GuiButtonTechNode(node.getId(), xCoords.get(node.getDepth() - 1), yCoords.get(i) + yStart, nodeWidth, nodeHeight, node);
+                INode node = it.next();
+                GuiButtonTechNode btn = new GuiButtonTechNode(node.getId(), xCoords.get(node.getDepth() - 1), yCoords.get(i + yLoc) + 20, nodeWidth, nodeHeight, node);
 
                 buttons[node.getId()] = btn;
                 buttonList.add(btn);
@@ -127,7 +129,7 @@ public class GuiTree extends GuiScreen
     {
         //mc.renderEngine.bindTexture(Textures.TREE_BACKGROUND);
         //drawTexturedModalRect(xStart, 15, 0, 0, WIDTH, HEIGHT);
-        drawRect(xStart, 15, xStart + WIDTH, 15 + HEIGHT, 0xF0999999);
+        drawRect(xStart, 15, xStart + WIDTH, 15 + HEIGHT, 0xF0AAAAAA);
     }
 
     protected void drawForeground()
@@ -156,7 +158,7 @@ public class GuiTree extends GuiScreen
             for (int node : btn.getNode().getParentID())
             {
                 GL11.glPushMatrix();
-                GL11.glColor3f(.81f, 0.01F, 0);
+                GL11.glColor3f(0f, 0f, 0f);
                 GL11.glBegin(GL11.GL_LINE_STRIP);
                 GL11.glVertex3d(btn.getInX(), btn.getInY(), 0.0D);
                 GL11.glVertex3d(buttons[node].getOutX(), buttons[node].getOutY(), 0.0D);

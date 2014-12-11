@@ -1,9 +1,10 @@
 package allout58.mods.techtree.client;
 
-import allout58.mods.techtree.tree.TechNode;
+import allout58.mods.techtree.tree.INode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
+import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
@@ -49,18 +50,22 @@ public class GuiButtonTechNode extends GuiButton
     }
 
     private ButtonMode mode = ButtonMode.Locked;
-    private TechNode node;
+    private INode node;
 
-    public GuiButtonTechNode(int id, int x, int y, int width, int height, TechNode node)
+    public GuiButtonTechNode(int id, int x, int y, int width, int height, INode node)
     {
         super(id, x, y, width, height, "");
+
+        //if (node instanceof FakeNode)
+        //    this.visible = this.enabled = false;
+
         this.node = node;
+
     }
 
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY)
     {
-        //super.drawButton(mc, mouseX, mouseY);
         if (this.visible)
         {
             FontRenderer fontRenderer = mc.fontRenderer;
@@ -82,7 +87,7 @@ public class GuiButtonTechNode extends GuiButton
                     drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFFAAAAFF, 0xFF6565a5);
                     break;
                 case Completed:
-                    drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFFFAFA9A, 0xFF858555);
+                    drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFF2CC9B7, 0xFF3F998E);
                     break;
                 default:
                     System.err.println("ERROR! Invalid button state! o.O" + mode);
@@ -90,7 +95,7 @@ public class GuiButtonTechNode extends GuiButton
 
             if (mouseOver)
             {
-                drawRect(xPosition - 1, yPosition - 1, xPosition + width + 1, yPosition + height + 1, 0x3FF1FF4D);
+                drawRect(xPosition - 1, yPosition - 1, xPosition + width + 1, yPosition + height + 1, 0x30FFFFFF);
             }
 
             GL11.glPushMatrix();
@@ -107,6 +112,9 @@ public class GuiButtonTechNode extends GuiButton
             GL11.glTranslated(xPosition, yPosition, 0);
             fontRenderer.drawString(mode.name(), xPosition + 2, yPosition + 10 + fontRenderer.FONT_HEIGHT, 0xFFFFFFFF, false);
             fontRenderer.drawString(mouseOver ? "mouseOver" : "", xPosition + 2, yPosition + 18 + fontRenderer.FONT_HEIGHT * 2, 0xFFFFFFFF, false);
+            //fontRenderer.drawString(ArrayUtils.toString(node.getChildren().toArray(), "nochildren"), xPosition + 2, yPosition + 26 + fontRenderer.FONT_HEIGHT * 3, 0xFFFFFFFF, false);
+            fontRenderer.drawString(ArrayUtils.toString(node.getParentID().toArray(), "noParents"), xPosition + 2, yPosition + 26 + fontRenderer.FONT_HEIGHT * 3, 0xFFFFFFFF, false);
+
 
             GL11.glPopMatrix();
             //GL11.glScaled(1, 1, 1);
@@ -127,7 +135,7 @@ public class GuiButtonTechNode extends GuiButton
         this.mode = ButtonMode.next(this.mode);
     }
 
-    public TechNode getNode()
+    public INode getNode()
     {
         return node;
     }

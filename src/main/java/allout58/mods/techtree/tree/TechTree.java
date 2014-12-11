@@ -14,11 +14,11 @@ public class TechTree
 {
     public static Logger log = LogManager.getFormatterLogger("TechTreeMod-TechTree");
 
-    private TechNode head;
+    private INode head;
     private int depth = 0;
     private int maxWidth = 0;
-    private ArrayList<HashSet<TechNode>> list = new ArrayList<HashSet<TechNode>>(depth);
-    private HashSet<TechNode> nodes = new HashSet<TechNode>();
+    private ArrayList<HashSet<INode>> list = new ArrayList<HashSet<INode>>(depth);
+    private HashSet<INode> nodes = new HashSet<INode>();
 
     public TechTree(TechNode head)
     {
@@ -30,15 +30,16 @@ public class TechTree
     {
         doMaxDepth(head, 0);
         for (int i = 0; i < depth; i++)
-            list.add(new HashSet<TechNode>());
+            list.add(new HashSet<INode>());
         doMaxWidth();
         log.info("Depth found: " + depth);
         log.info("Max Width found: " + maxWidth);
         doMaxWidth2();
         log.info("Max widnt 2: " + maxWidth);
+        doFakeNodes();
     }
 
-    private void doMaxDepth(TechNode node, int currDepth)
+    private void doMaxDepth(INode node, int currDepth)
     {
         assert node != null;
         node.setDepth(Math.max(currDepth + 1, node.getDepth()));
@@ -48,13 +49,13 @@ public class TechTree
             depth = Math.max(currDepth + 1, depth);
             return;
         }
-        for (TechNode child : node.getChildren())
+        for (INode child : node.getChildren())
             doMaxDepth(child, currDepth + 1);
     }
 
     private void doMaxWidth()
     {
-        for (TechNode node : nodes)
+        for (INode node : nodes)
         {
             list.get(node.getDepth() - 1).add(node);
         }
@@ -64,8 +65,36 @@ public class TechTree
 
     private void doMaxWidth2()
     {
-        for (TechNode node : nodes)
+        for (INode node : nodes)
             maxWidth = Math.max(maxWidth, node.getChildren().size());
+    }
+
+    private void doFakeNodes()
+    {
+        //TODO Handle more than one depth difference between parents and children
+        for (INode node : nodes)
+        {
+            for (int i = 0; i < node.getParents().size(); i++)
+            {
+                INode parent = node.getParents().get(i);
+                if (parent.getDepth() != node.getDepth() - 1)
+                {
+                    INode ne = new FakeNode(parent, node, TechNode.NEXT_ID++);
+
+                    ne.setDepth(node.getDepth() - 1);
+                    list.get(ne.getDepth() - 1).add(ne);
+
+                    node.getParents().remove(parent);
+                    node.getParents().add(ne);
+
+                    node.getParentID().remove(parent.getId());
+                    node.getParentID().add(ne.getId());
+
+                    parent.getChildren().remove(node);
+                    parent.getChildren().add(ne);
+                }
+            }
+        }
     }
 
     public int getDepth()
@@ -78,12 +107,12 @@ public class TechTree
         return maxWidth;
     }
 
-    public List<HashSet<TechNode>> getList()
+    public List<HashSet<INode>> getList()
     {
         return list;
     }
 
-    public HashSet<TechNode> getNodes()
+    public HashSet<INode> getNodes()
     {
         return nodes;
     }
