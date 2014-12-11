@@ -5,7 +5,6 @@ import allout58.mods.techtree.tree.INode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
-import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
@@ -115,7 +114,6 @@ public class GuiButtonTechNode extends GuiButton
             //fontRenderer.drawString(mouseOver ? "mouseOver" : "", xPosition + 2, yPosition + 18 + fontRenderer.FONT_HEIGHT * 2, 0xFFFFFFFF, false);
             //fontRenderer.drawString(ArrayUtils.toString(node.getChildren().toArray(), "nochildren"), xPosition + 2, yPosition + 26 + fontRenderer.FONT_HEIGHT * 3, 0xFFFFFFFF, false);
             //fontRenderer.drawString(ArrayUtils.toString(node.getParentID().toArray(), "noParents"), xPosition + 2, yPosition + 26 + fontRenderer.FONT_HEIGHT * 3, 0xFFFFFFFF, false);
-
 
             GL11.glPopMatrix();
             //GL11.glScaled(1, 1, 1);
