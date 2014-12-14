@@ -107,6 +107,8 @@ public class GuiTree extends GuiScreen
         drawForeground();
 
         super.drawScreen(mouseX, mouseY, renderPartials);
+
+        drawOverlay(mouseX, mouseY);
     }
 
     @Override
@@ -153,6 +155,26 @@ public class GuiTree extends GuiScreen
             }
         }
 
+    }
+
+    @SuppressWarnings("unchecked")
+    private void drawOverlay(int mouseX, int mouseY)
+    {
+        for (GuiButtonTechNode btn : buttons)
+        {
+            if (btn.mousePressed(this.mc, mouseX, mouseY))
+            {
+                int w = (mouseX < width / 2) ? 50 : -50;
+                try
+                {
+                    RenderingHelper.drawRoundedRectangle(mouseX + 2, mouseY + 6, w, 40, 7, 0xFFAA0000);
+                }
+                catch (IllegalArgumentException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     protected void drawStartScreen()

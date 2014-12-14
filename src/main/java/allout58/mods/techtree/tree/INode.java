@@ -20,4 +20,6 @@ public interface INode
     int getId();
 
     String getName();
+
+    String getDescription();
 }

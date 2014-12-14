@@ -2,7 +2,6 @@ package allout58.mods.techtree.client;
 
 import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.INode;
-import allout58.mods.techtree.tree.TechNode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -58,7 +57,10 @@ public class GuiButtonTechNode extends GuiButton
         super(id, x, y, width, height, "");
 
         if (node instanceof FakeNode)
+        {
             this.visible = this.enabled = false;
+            this.height = 2;
+        }
 
         this.node = node;
 
@@ -85,7 +87,7 @@ public class GuiButtonTechNode extends GuiButton
                     drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFFAAAAAA, 0xFF656565);
                     break;
                 case Researching:
-                    drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFFAAAAFF, 0xFF6565a5);
+                    drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFF9999FF, 0xFF6565a5);
                     break;
                 case Completed:
                     drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFF2CC9B7, 0xFF3F998E);
@@ -112,13 +114,9 @@ public class GuiButtonTechNode extends GuiButton
             GL11.glScaled(.5, .5, .5);
             GL11.glTranslated(xPosition, yPosition, 0);
             fontRenderer.drawString(mode.name(), xPosition + 2, yPosition + 10 + fontRenderer.FONT_HEIGHT, 0xFFFFFFFF, false);
-            fontRenderer.drawSplitString(((TechNode) node).getDescription(), xPosition + 4, yPosition + 18 + fontRenderer.FONT_HEIGHT * 2, width * 2, 0xFFFFFFFF);
-            //fontRenderer.drawString(mouseOver ? "mouseOver" : "", xPosition + 2, yPosition + 18 + fontRenderer.FONT_HEIGHT * 2, 0xFFFFFFFF, false);
-            //fontRenderer.drawString(ArrayUtils.toString(node.getChildren().toArray(), "nochildren"), xPosition + 2, yPosition + 26 + fontRenderer.FONT_HEIGHT * 3, 0xFFFFFFFF, false);
-            //fontRenderer.drawString(ArrayUtils.toString(node.getParentID().toArray(), "noParents"), xPosition + 2, yPosition + 26 + fontRenderer.FONT_HEIGHT * 3, 0xFFFFFFFF, false);
+            fontRenderer.drawSplitString(node.getDescription(), xPosition + 4, yPosition + 18 + fontRenderer.FONT_HEIGHT * 2, width * 2, 0xFFFFFFFF);
 
             GL11.glPopMatrix();
-            //GL11.glScaled(1, 1, 1);
 
             GL11.glPopMatrix();
 

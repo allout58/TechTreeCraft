@@ -63,4 +63,10 @@ public class FakeNode implements INode
     {
         return "FakeNode" + id;
     }
+
+    @Override
+    public String getDescription()
+    {
+        return "What description?";
+    }
 }
