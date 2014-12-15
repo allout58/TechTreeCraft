@@ -9,6 +9,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 
 import java.lang.reflect.Type;
 
@@ -32,7 +34,8 @@ public class TechNodeGSON
         final String description = obj.get("description").getAsString();
 
         final TechNode node = new TechNode(id);
-        node.setup(name, science, description, null);
+        Item[] items = new Item[] { Items.apple, Items.arrow, Items.bow };
+        node.setup(name, science, description, items);
 
         final JsonArray jsonParentArray = obj.getAsJsonArray("parents");
         for (int i = 0; i < jsonParentArray.size(); i++)

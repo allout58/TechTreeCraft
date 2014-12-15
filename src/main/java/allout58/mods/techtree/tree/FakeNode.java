@@ -1,5 +1,7 @@
 package allout58.mods.techtree.tree;
 
+import net.minecraft.item.Item;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,5 +70,11 @@ public class FakeNode implements INode
     public String getDescription()
     {
         return "What description?";
+    }
+
+    @Override
+    public Item[] getLockedItems()
+    {
+        return new Item[] { };
     }
 }

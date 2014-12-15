@@ -5,8 +5,11 @@ import allout58.mods.techtree.tree.INode;
 import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
 import allout58.mods.techtree.util.RenderingHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.item.ItemStack;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -164,10 +167,33 @@ public class GuiTree extends GuiScreen
         {
             if (btn.mousePressed(this.mc, mouseX, mouseY))
             {
-                int w = (mouseX < width / 2) ? 50 : -50;
+                //int w = (mouseX < width / 2) ? 50 : -50;
+                int w = Math.max(fontRendererObj.getStringWidth(btn.getNode().getName()) + 20, 100);
+                int h = (int) (fontRendererObj.listFormattedStringToWidth(btn.getNode().getDescription(), w).size() * fontRendererObj.FONT_HEIGHT * 0.5 + fontRendererObj.FONT_HEIGHT + 30);
+                if (mouseX < width / 2)
+                {
+                    mouseX -= w;
+                }
+
                 try
                 {
-                    RenderingHelper.drawRoundedRectangle(mouseX + 2, mouseY + 6, w, 40, 7, 0xFFAA0000);
+                    RenderingHelper.drawRoundedRectangle(mouseX + 2, mouseY + 2, w, h, 7, 0xF08694E3);
+                    fontRendererObj.drawString(btn.getNode().getName(), mouseX + 2 + 6, mouseY + 2 + 6, 0xFFFFFFFF, true);
+                    drawHorizontalLine(mouseX + 7, mouseX + w - 7, mouseY + 10 + fontRendererObj.FONT_HEIGHT, 0xFFDDDDDD);
+
+                    GL11.glPushMatrix();
+                    GL11.glScaled(0.5, 0.5, 0);
+                    GL11.glTranslated(mouseX, mouseY, 0);
+                    fontRendererObj.drawSplitString(btn.getNode().getDescription(), mouseX + 14, mouseY + 17 + fontRendererObj.FONT_HEIGHT * 3, w * 2, 0xFFFFFFFF);
+                    GL11.glPopMatrix();
+
+                    for (int i = 0; i < btn.getNode().getLockedItems().length; i++)
+                    {
+                        GL11.glDisable(GL11.GL_ALPHA_TEST);
+                        drawRect(mouseX + 14 + 18 * i, mouseY + h - 18, mouseX + 30 + 18 * i, mouseY + h - 2, 0xFFCCCCCC);
+                        itemRender.renderItemIntoGUI(fontRendererObj, Minecraft.getMinecraft().renderEngine, new ItemStack(btn.getNode().getLockedItems()[i]), mouseX + 14 + 18 * i, mouseY + h - 18);
+                    }
+
                 }
                 catch (IllegalArgumentException e)
                 {

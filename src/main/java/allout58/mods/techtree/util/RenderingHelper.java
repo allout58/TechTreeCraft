@@ -48,6 +48,9 @@ public class RenderingHelper
 
     public static int VERTEX_PER_CURVE = 5;
 
+    private static final double[] dT = new double[] { Math.PI, Math.PI * 3 / 2, 0, Math.PI / 2 };
+    private static final double deltaTheta = Math.PI / 2 / VERTEX_PER_CURVE;
+
     public static void draw2DLine(int x1, int y1, int x2, int y2, float width, int colorRGB)
     {
         float red = (float) (colorRGB >> 16 & 255) / 255.0F;
@@ -103,8 +106,8 @@ public class RenderingHelper
         int y2Inner = y + height - radius;
 
         float red = (float) (borderColor >> 16 & 255) / 255.0F;
-        float blue = (float) (borderColor >> 8 & 255) / 255.0F;
-        float green = (float) (borderColor & 255) / 255.0F;
+        float green = (float) (borderColor >> 8 & 255) / 255.0F;
+        float blue = (float) (borderColor & 255) / 255.0F;
         float alpha = (float) (borderColor >> 24 & 255) / 255.0F;
 
         Gui.drawRect(x, y1Inner, x1Inner, y2Inner, borderColor);
@@ -115,8 +118,7 @@ public class RenderingHelper
 
         ArrayList<Point> curves = new ArrayList<Point>();
 
-        double[] dT = new double[] { Math.PI, Math.PI * 3 / 2, 0, Math.PI / 2 };
-        double[][] start = new double[][] {
+        final double[][] start = new double[][] {
                 {
                         x1Inner, y1Inner
                 },
@@ -130,8 +132,6 @@ public class RenderingHelper
                         x1Inner, y2Inner
                 }
         };
-
-        final double deltaTheta = Math.PI / 2 / VERTEX_PER_CURVE;
 
         for (int corner = 0; corner < 4; corner++)
         {
