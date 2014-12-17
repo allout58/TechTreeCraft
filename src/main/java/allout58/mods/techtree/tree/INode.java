@@ -1,6 +1,6 @@
 package allout58.mods.techtree.tree;
 
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 import java.util.List;
 
@@ -25,5 +25,5 @@ public interface INode
 
     String getDescription();
 
-    Item[] getLockedItems();
+    ItemStack[] getLockedItems();
 }

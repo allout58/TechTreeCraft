@@ -1,6 +1,6 @@
 package allout58.mods.techtree.tree;
 
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,9 @@ public class TechNode implements INode
     private String name;
     private int scienceRequired = -1;
     private String description;
-    private Item[] lockedItems;
+    private ItemStack[] lockedItems;
+    //Run time data - should never be copied over.
+    private int scienceAquired = 0;
 
     /**
      * @param id ID to assign to this node. Used for (de)serialization.
@@ -33,8 +35,17 @@ public class TechNode implements INode
         this.id = id;
     }
 
+    public TechNode(TechNode copy)
+    {
+        this(copy.getId());
+        this.setup(copy.getName(), copy.getScienceRequired(), copy.getDescription(), copy.getLockedItems());
+        for (int pID : copy.getParentID())
+            this.addParentNode(pID);
+        this.setDepth(copy.getDepth());
+    }
+
     /**
-     * Add a parent node's id to this node's list. Used only on deserialization
+     * Add a parent node's id to this node's list.
      *
      * @param parent The parent's ID
      */
@@ -71,7 +82,7 @@ public class TechNode implements INode
      * @param desc       Description of the node.
      * @param lockItems  Items locked by this node. Unlocking the node allows them to be crafted again.
      */
-    public void setup(String name, int scienceReq, String desc, Item[] lockItems)
+    public void setup(String name, int scienceReq, String desc, ItemStack[] lockItems)
     {
         this.name = name;
         this.scienceRequired = scienceReq;
@@ -132,7 +143,7 @@ public class TechNode implements INode
     /**
      * @return The items locked by this node
      */
-    public Item[] getLockedItems()
+    public ItemStack[] getLockedItems()
     {
         return lockedItems;
     }

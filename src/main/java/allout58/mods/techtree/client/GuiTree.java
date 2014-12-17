@@ -8,7 +8,7 @@ import allout58.mods.techtree.util.RenderingHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.item.ItemStack;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -129,6 +129,16 @@ public class GuiTree extends GuiScreen
             for (GuiButton btn : buttons)
                 btn.visible = !btn.visible;
         }
+        if (key == Keyboard.KEY_LEFT)
+        {
+            for (GuiButton btn : buttons)
+                ((GuiButtonTechNode) btn).bar.setMax(.4F);
+        }
+        if (key == Keyboard.KEY_RIGHT)
+        {
+            for (GuiButton btn : buttons)
+                ((GuiButtonTechNode) btn).bar.setMax(.6F);
+        }
     }
 
     protected void drawBackground()
@@ -167,7 +177,6 @@ public class GuiTree extends GuiScreen
         {
             if (btn.mousePressed(this.mc, mouseX, mouseY))
             {
-                //int w = (mouseX < width / 2) ? 50 : -50;
                 int w = Math.max(fontRendererObj.getStringWidth(btn.getNode().getName()) + 20, 100);
                 int h = (int) (fontRendererObj.listFormattedStringToWidth(btn.getNode().getDescription(), w).size() * fontRendererObj.FONT_HEIGHT * 0.5 + fontRendererObj.FONT_HEIGHT + 30);
                 if (mouseX < width / 2)
@@ -184,14 +193,15 @@ public class GuiTree extends GuiScreen
                     GL11.glPushMatrix();
                     GL11.glScaled(0.5, 0.5, 0);
                     GL11.glTranslated(mouseX, mouseY, 0);
-                    fontRendererObj.drawSplitString(btn.getNode().getDescription(), mouseX + 14, mouseY + 17 + fontRendererObj.FONT_HEIGHT * 3, w * 2, 0xFFFFFFFF);
+                    fontRendererObj.drawSplitString(btn.getNode().getDescription(), mouseX + 14, mouseY + 17 + fontRendererObj.FONT_HEIGHT * 3, w * 2 - 10, 0xFFFFFFFF);
                     GL11.glPopMatrix();
 
                     for (int i = 0; i < btn.getNode().getLockedItems().length; i++)
                     {
                         GL11.glDisable(GL11.GL_ALPHA_TEST);
-                        drawRect(mouseX + 14 + 18 * i, mouseY + h - 18, mouseX + 30 + 18 * i, mouseY + h - 2, 0xFFCCCCCC);
-                        itemRender.renderItemIntoGUI(fontRendererObj, Minecraft.getMinecraft().renderEngine, new ItemStack(btn.getNode().getLockedItems()[i]), mouseX + 14 + 18 * i, mouseY + h - 18);
+                        GL11.glDisable(GL11.GL_LIGHTING);
+                        drawRect(mouseX + 14 + 18 * i, mouseY + h - 18, mouseX + 30 + 18 * i, mouseY + h - 2, 0xFFB0B0B0);
+                        itemRender.renderItemIntoGUI(fontRendererObj, Minecraft.getMinecraft().renderEngine, btn.getNode().getLockedItems()[i], mouseX + 14 + 18 * i, mouseY + h - 18);
                     }
 
                 }
@@ -202,16 +212,4 @@ public class GuiTree extends GuiScreen
             }
         }
     }
-
-    protected void drawStartScreen()
-    {
-        //fontRendererObj.drawString(StatCollector.translateToLocal("gui.FoodBook.Title"), bookXStart + 45, 20, 0x000000);
-        //fontRendererObj.drawSplitString(StatCollector.translateToLocal("gui.FoodBook.MainDesc"), bookXStart + 20, 60, WIDTH - 40, 0x000000);
-    }
-
-    protected void drawPages()
-    {
-        //fontRendererObj.drawString((pageIndex + 1) + "/" + (pages.size() + 1), bookXStart + 82, 215, 0x000000);
-    }
-
 }

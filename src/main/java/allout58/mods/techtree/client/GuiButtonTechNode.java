@@ -49,6 +49,8 @@ public class GuiButtonTechNode extends GuiButton
         }
     }
 
+    public GuiElementProgressBar bar;
+
     private ButtonMode mode = ButtonMode.Locked;
     private INode node;
 
@@ -64,6 +66,9 @@ public class GuiButtonTechNode extends GuiButton
 
         this.node = node;
 
+        bar = new GuiElementProgressBar(width - 10, 5, x + 5, y + height - 8, .5F, 0xFF119911, 0xFF991111);
+        bar.setVisible(true);
+
     }
 
     @Override
@@ -74,8 +79,6 @@ public class GuiButtonTechNode extends GuiButton
             FontRenderer fontRenderer = mc.fontRenderer;
             boolean mouseOver = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + width && mouseY < yPosition + height;
 
-            GL11.glPushMatrix();
-
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
             switch (mode)
@@ -85,12 +88,15 @@ public class GuiButtonTechNode extends GuiButton
                     break;
                 case Unlocked:
                     drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFFAAAAAA, 0xFF656565);
+                    bar.setEnabled(false);
                     break;
                 case Researching:
                     drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFF9999FF, 0xFF6565a5);
+                    bar.setEnabled(true);
                     break;
                 case Completed:
                     drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFF2CC9B7, 0xFF3F998E);
+                    bar.setEnabled(false);
                     break;
                 default:
                     System.err.println("ERROR! Invalid button state! o.O" + mode);
@@ -110,14 +116,15 @@ public class GuiButtonTechNode extends GuiButton
             GL11.glPopMatrix();
 
             GL11.glPushMatrix();
-
             GL11.glScaled(.5, .5, .5);
             GL11.glTranslated(xPosition, yPosition, 0);
             fontRenderer.drawString(mode.name(), xPosition + 2, yPosition + 10 + fontRenderer.FONT_HEIGHT, 0xFFFFFFFF, false);
-            fontRenderer.drawSplitString(node.getDescription(), xPosition + 4, yPosition + 18 + fontRenderer.FONT_HEIGHT * 2, width * 2, 0xFFFFFFFF);
-
+            //fontRenderer.drawSplitString(node.getDescription(), xPosition + 4, yPosition + 18 + fontRenderer.FONT_HEIGHT * 2, width * 2, 0xFFFFFFFF);
             GL11.glPopMatrix();
 
+            GL11.glPushMatrix();
+            GL11.glScaled(1, 1, 1);
+            bar.doRender();
             GL11.glPopMatrix();
 
             this.mouseDragged(mc, mouseX, mouseY);

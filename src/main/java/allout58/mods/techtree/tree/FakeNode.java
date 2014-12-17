@@ -1,6 +1,6 @@
 package allout58.mods.techtree.tree;
 
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +22,12 @@ public class FakeNode implements INode
         children.add(child);
         pID.add(parent.getId());
         this.id = id;
+    }
+
+    public FakeNode(FakeNode copy)
+    {
+        this(copy.getParents().get(0), copy.getChildren().get(0), copy.getId());
+        this.setDepth(copy.getDepth());
     }
 
     @Override
@@ -73,8 +79,8 @@ public class FakeNode implements INode
     }
 
     @Override
-    public Item[] getLockedItems()
+    public ItemStack[] getLockedItems()
     {
-        return new Item[] { };
+        return new ItemStack[] { };
     }
 }
