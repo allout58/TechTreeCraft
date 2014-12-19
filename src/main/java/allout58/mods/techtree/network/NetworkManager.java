@@ -22,26 +22,29 @@
  * SOFTWARE.                                                                  *
  ******************************************************************************/
 
-package allout58.mods.techtree.handler;
+package allout58.mods.techtree.network;
 
-import cpw.mods.fml.common.network.IGuiHandler;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
+import allout58.mods.techtree.lib.ModInfo;
+import allout58.mods.techtree.network.message.RequestResearch;
+import allout58.mods.techtree.network.message.SendResearch;
+import allout58.mods.techtree.network.message.UpdateNodeMode;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import cpw.mods.fml.relauncher.Side;
 
 /**
- * Created by James Hollowell on 12/5/2014.
+ * Created by James Hollowell on 12/17/2014.
  */
-public class GuiHandler implements IGuiHandler
+public class NetworkManager
 {
-    @Override
-    public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
-    {
-        return null;
-    }
+    public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(ModInfo.MOD_ID);
 
-    @Override
-    public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    private static int discriminator = 0;
+
+    public static void init()
     {
-        return null;
+        INSTANCE.registerMessage(RequestResearch.Handler.class, RequestResearch.class, discriminator++, Side.SERVER);
+        INSTANCE.registerMessage(SendResearch.Handler.class, SendResearch.class, discriminator++, Side.CLIENT);
+        INSTANCE.registerMessage(UpdateNodeMode.Handler.class, UpdateNodeMode.class, discriminator++, Side.SERVER);
     }
 }

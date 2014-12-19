@@ -22,26 +22,59 @@
  * SOFTWARE.                                                                  *
  ******************************************************************************/
 
-package allout58.mods.techtree.handler;
+package allout58.mods.techtree.network.message;
 
-import cpw.mods.fml.common.network.IGuiHandler;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
+import allout58.mods.techtree.research.ResearchClient;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import io.netty.buffer.ByteBuf;
 
 /**
- * Created by James Hollowell on 12/5/2014.
+ * Created by James Hollowell on 12/17/2014.
  */
-public class GuiHandler implements IGuiHandler
+public class SendResearch
+        implements IMessage
 {
-    @Override
-    public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    public int nodeID = 0;
+    public int research = 0;
+
+    public SendResearch(int nodeID, int research)
     {
-        return null;
+        this.nodeID = nodeID;
+        this.research = research;
     }
 
     @Override
-    public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    public void fromBytes(ByteBuf buf)
     {
-        return null;
+        nodeID = buf.readInt();
+        research = buf.readInt();
+
+    }
+
+    @Override
+    public void toBytes(ByteBuf buf)
+    {
+        buf.writeInt(nodeID);
+        buf.writeInt(research);
+    }
+
+    public static class Handler
+            implements IMessageHandler<SendResearch, IMessage>
+    {
+        @Override
+        public IMessage onMessage(SendResearch message, MessageContext ctx)
+        {
+            try
+            {
+                ResearchClient.getInstance().setResearch(message.nodeID, message.research);
+            }
+            catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 }

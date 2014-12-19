@@ -22,26 +22,44 @@
  * SOFTWARE.                                                                  *
  ******************************************************************************/
 
-package allout58.mods.techtree.handler;
+package allout58.mods.techtree.tree;
 
-import cpw.mods.fml.common.network.IGuiHandler;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
+import java.util.HashMap;
 
 /**
- * Created by James Hollowell on 12/5/2014.
+ * Created by James Hollowell on 12/18/2014.
  */
-public class GuiHandler implements IGuiHandler
+public enum NodeMode
 {
-    @Override
-    public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    Locked(0),
+    Unlocked(1),
+    Researching(2),
+    Completed(3);
+
+    private static final HashMap<Integer, NodeMode> lookup = new HashMap<Integer, NodeMode>();
+
+    private int order;
+
+    private NodeMode(int order)
     {
-        return null;
+        this.order = order;
     }
 
-    @Override
-    public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    public static NodeMode next(NodeMode mode)
     {
-        return null;
+        return NodeMode.getByID((mode.order + 1) % values().length);
+    }
+
+    private static NodeMode getByID(int id)
+    {
+        return lookup.get(id);
+    }
+
+    static
+    {
+        for (NodeMode mode : values())
+        {
+            lookup.put(mode.order, mode);
+        }
     }
 }

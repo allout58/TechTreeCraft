@@ -22,26 +22,63 @@
  * SOFTWARE.                                                                  *
  ******************************************************************************/
 
-package allout58.mods.techtree.handler;
+package allout58.mods.techtree.research;
 
-import cpw.mods.fml.common.network.IGuiHandler;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Created by James Hollowell on 12/5/2014.
+ * Created by James Hollowell on 12/17/2014.
  */
-public class GuiHandler implements IGuiHandler
+@SideOnly(Side.CLIENT)
+public class ResearchClient
 {
-    @Override
-    public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    private static ResearchClient INSTANCE;
+    /**
+     * Client's UUID
+     */
+    private String clientID;
+    private Map<Integer, Integer> researchList = new HashMap<Integer, Integer>();
+
+    public ResearchClient(String clientID)
     {
-        return null;
+        this.clientID = clientID;
     }
 
-    @Override
-    public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    public static ResearchClient getInstance() throws IllegalAccessException
     {
-        return null;
+        if (INSTANCE == null)
+            throw new IllegalAccessException("Tried to get the ResearchClient instance with no uuid and no previous instance");
+        return INSTANCE;
+    }
+
+    public static ResearchClient getInstance(String uuid)
+    {
+        if (INSTANCE == null)
+        {
+            INSTANCE = new ResearchClient(uuid);
+            return INSTANCE;
+        }
+        if (!INSTANCE.clientID.equals(uuid))
+            throw new IllegalArgumentException("Tried to get the ResearchClient instance with a different UUID than is already set.");
+        return INSTANCE;
+    }
+
+    public void setResearch(int nodeID, int newVal)
+    {
+        researchList.put(nodeID, newVal);
+    }
+
+    public int getResearch(int nodeID)
+    {
+        return researchList.get(nodeID);
+    }
+
+    public boolean isUpdated()
+    {
+        return researchList.size() != 0;
     }
 }

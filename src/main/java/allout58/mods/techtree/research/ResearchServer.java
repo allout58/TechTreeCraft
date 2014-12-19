@@ -22,26 +22,39 @@
  * SOFTWARE.                                                                  *
  ******************************************************************************/
 
-package allout58.mods.techtree.handler;
+package allout58.mods.techtree.research;
 
-import cpw.mods.fml.common.network.IGuiHandler;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Created by James Hollowell on 12/5/2014.
+ * Created by James Hollowell on 12/17/2014.
  */
-public class GuiHandler implements IGuiHandler
+public class ResearchServer
 {
-    @Override
-    public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    private static ResearchServer INSTANCE;
+
+    private Map<String, HashMap<Integer, Integer>> data = new HashMap<String, HashMap<Integer, Integer>>();
+
+    public static ResearchServer getInstance()
     {
-        return null;
+        if (INSTANCE == null)
+            INSTANCE = new ResearchServer();
+        return INSTANCE;
     }
 
-    @Override
-    public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    public int getResearch(String uuid, int nodeID)
     {
-        return null;
+        if (data.get(uuid) == null)
+            return -1;
+        return data.get(uuid).get(nodeID);
     }
+
+    public void setResearch(String uuid, int nodeID, int value)
+    {
+        if (data.get(uuid) == null)
+            data.put(uuid, new HashMap<Integer, Integer>());
+        data.get(uuid).put(nodeID, value);
+    }
+
 }

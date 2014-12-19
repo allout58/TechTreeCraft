@@ -1,3 +1,27 @@
+/******************************************************************************
+ * The MIT License (MIT)                                                      *
+ *                                                                            *
+ * Copyright (c) 2014 allout58                                                *
+ *                                                                            *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell  *
+ * copies of the Software, and to permit persons to whom the Software is      *
+ * furnished to do so, subject to the following conditions:                   *
+ *                                                                            *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.                            *
+ *                                                                            *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR *
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   *
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE*
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER     *
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.                                                                  *
+ ******************************************************************************/
+
 package allout58.mods.techtree.client;
 
 import allout58.mods.techtree.tree.FakeNode;
@@ -7,51 +31,13 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import org.lwjgl.opengl.GL11;
 
-import java.util.HashMap;
-
 /**
  * Created by James Hollowell on 12/9/2014.
  */
 public class GuiButtonTechNode extends GuiButton
 {
-    public enum ButtonMode
-    {
-        Locked(0),
-        Unlocked(1),
-        Researching(2),
-        Completed(3);
-
-        private static final HashMap<Integer, ButtonMode> lookup = new HashMap<Integer, ButtonMode>();
-
-        private int order;
-
-        private ButtonMode(int order)
-        {
-            this.order = order;
-        }
-
-        public static ButtonMode next(ButtonMode mode)
-        {
-            return ButtonMode.getByID((mode.order + 1) % values().length);
-        }
-
-        private static ButtonMode getByID(int id)
-        {
-            return lookup.get(id);
-        }
-
-        static
-        {
-            for (ButtonMode mode : values())
-            {
-                lookup.put(mode.order, mode);
-            }
-        }
-    }
-
     public GuiElementProgressBar bar;
 
-    private ButtonMode mode = ButtonMode.Locked;
     private INode node;
 
     public GuiButtonTechNode(int id, int x, int y, int width, int height, INode node)
@@ -81,7 +67,7 @@ public class GuiButtonTechNode extends GuiButton
 
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-            switch (mode)
+            switch (node.getMode())
             {
                 case Locked:
                     drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFF777777, 0xFF333333);
@@ -99,7 +85,7 @@ public class GuiButtonTechNode extends GuiButton
                     bar.setEnabled(false);
                     break;
                 default:
-                    System.err.println("ERROR! Invalid button state! o.O" + mode);
+                    System.err.println("ERROR! Invalid button state! o.O" + node.getMode());
             }
 
             if (mouseOver)
@@ -118,7 +104,7 @@ public class GuiButtonTechNode extends GuiButton
             GL11.glPushMatrix();
             GL11.glScaled(.5, .5, .5);
             GL11.glTranslated(xPosition, yPosition, 0);
-            fontRenderer.drawString(mode.name(), xPosition + 2, yPosition + 10 + fontRenderer.FONT_HEIGHT, 0xFFFFFFFF, false);
+            fontRenderer.drawString(node.getMode().name(), xPosition + 2, yPosition + 10 + fontRenderer.FONT_HEIGHT, 0xFFFFFFFF, false);
             //fontRenderer.drawSplitString(node.getDescription(), xPosition + 4, yPosition + 18 + fontRenderer.FONT_HEIGHT * 2, width * 2, 0xFFFFFFFF);
             GL11.glPopMatrix();
 
@@ -129,16 +115,6 @@ public class GuiButtonTechNode extends GuiButton
 
             this.mouseDragged(mc, mouseX, mouseY);
         }
-    }
-
-    public void setMode(ButtonMode mode)
-    {
-        this.mode = mode;
-    }
-
-    public void nextMode()
-    {
-        this.mode = ButtonMode.next(this.mode);
     }
 
     public INode getNode()

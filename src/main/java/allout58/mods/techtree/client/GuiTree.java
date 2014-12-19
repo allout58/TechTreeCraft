@@ -1,5 +1,32 @@
+/******************************************************************************
+ * The MIT License (MIT)                                                      *
+ *                                                                            *
+ * Copyright (c) 2014 allout58                                                *
+ *                                                                            *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell  *
+ * copies of the Software, and to permit persons to whom the Software is      *
+ * furnished to do so, subject to the following conditions:                   *
+ *                                                                            *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.                            *
+ *                                                                            *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR *
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   *
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE*
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER     *
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.                                                                  *
+ ******************************************************************************/
+
 package allout58.mods.techtree.client;
 
+import allout58.mods.techtree.network.NetworkManager;
+import allout58.mods.techtree.network.message.RequestResearch;
+import allout58.mods.techtree.research.ResearchClient;
 import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.INode;
 import allout58.mods.techtree.tree.TechNode;
@@ -8,13 +35,14 @@ import allout58.mods.techtree.util.RenderingHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.util.StatCollector;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by James Hollowell on 12/7/2014.
@@ -37,12 +65,19 @@ public class GuiTree extends GuiScreen
 
     private TechTree tree;
     private GuiButtonTechNode[] buttons;
+    private String uuid = "";
 
-    public GuiTree(TechTree tree)
+    public GuiTree(TechTree tree, UUID player)
     {
         super();
         this.tree = tree;
+        uuid = player.toString();
         buttons = new GuiButtonTechNode[TechNode.NEXT_ID];
+
+        if (!ResearchClient.getInstance(uuid).isUpdated())
+            for (INode node : tree.getNodes())
+                if (node.getClass().equals(TechNode.class))
+                    NetworkManager.INSTANCE.sendToServer(new RequestResearch(uuid, node.getId()));
     }
 
     @SuppressWarnings("unchecked")
@@ -94,14 +129,10 @@ public class GuiTree extends GuiScreen
     protected void actionPerformed(GuiButton button)
     {
         if (button instanceof GuiButtonTechNode)
-            ((GuiButtonTechNode) button).nextMode();
+        {
+            ((GuiButtonTechNode) button).getNode().nextMode();
+        }
     }
-
-    //    private void updateButtonState()
-    //    {
-    //        next.visible = pageIndex < pages.size();
-    //        prev.visible = pageIndex > 0;
-    //    }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float renderPartials)
@@ -129,22 +160,20 @@ public class GuiTree extends GuiScreen
             for (GuiButton btn : buttons)
                 btn.visible = !btn.visible;
         }
-        if (key == Keyboard.KEY_LEFT)
-        {
-            for (GuiButton btn : buttons)
-                ((GuiButtonTechNode) btn).bar.setMax(.4F);
-        }
-        if (key == Keyboard.KEY_RIGHT)
-        {
-            for (GuiButton btn : buttons)
-                ((GuiButtonTechNode) btn).bar.setMax(.6F);
-        }
+        //        if (key == Keyboard.KEY_LEFT)
+        //        {
+        //            for (GuiButton btn : buttons)
+        //                ((GuiButtonTechNode) btn).bar.setMax(.4F);
+        //        }
+        //        if (key == Keyboard.KEY_RIGHT)
+        //        {
+        //            for (GuiButton btn : buttons)
+        //                ((GuiButtonTechNode) btn).bar.setMax(.6F);
+        //        }
     }
 
     protected void drawBackground()
     {
-        //mc.renderEngine.bindTexture(Textures.TREE_BACKGROUND);
-        //drawTexturedModalRect(xStart, 15, 0, 0, WIDTH, HEIGHT);
         drawRect(xStart, 15, xStart + WIDTH, 15 + HEIGHT, 0xF0AAAAAA);
     }
 
@@ -178,7 +207,7 @@ public class GuiTree extends GuiScreen
             if (btn.mousePressed(this.mc, mouseX, mouseY))
             {
                 int w = Math.max(fontRendererObj.getStringWidth(btn.getNode().getName()) + 20, 100);
-                int h = (int) (fontRendererObj.listFormattedStringToWidth(btn.getNode().getDescription(), w).size() * fontRendererObj.FONT_HEIGHT * 0.5 + fontRendererObj.FONT_HEIGHT + 30);
+                int h = (int) ((fontRendererObj.listFormattedStringToWidth(btn.getNode().getDescription(), w).size() + 1) * fontRendererObj.FONT_HEIGHT * 0.5 + fontRendererObj.FONT_HEIGHT + 35);
                 if (mouseX < width / 2)
                 {
                     mouseX -= w;
@@ -193,7 +222,8 @@ public class GuiTree extends GuiScreen
                     GL11.glPushMatrix();
                     GL11.glScaled(0.5, 0.5, 0);
                     GL11.glTranslated(mouseX, mouseY, 0);
-                    fontRendererObj.drawSplitString(btn.getNode().getDescription(), mouseX + 14, mouseY + 17 + fontRendererObj.FONT_HEIGHT * 3, w * 2 - 10, 0xFFFFFFFF);
+                    fontRendererObj.drawString(StatCollector.translateToLocalFormatted("gui.scienceRequired", btn.getNode().getScienceRequired()), mouseX + 14, mouseY + 17 + fontRendererObj.FONT_HEIGHT * 3, 0xFFFFFFFF);
+                    fontRendererObj.drawSplitString(btn.getNode().getDescription(), mouseX + 14, mouseY + 22 + fontRendererObj.FONT_HEIGHT * 4, w * 2 - 10, 0xFFFFFFFF);
                     GL11.glPopMatrix();
 
                     for (int i = 0; i < btn.getNode().getLockedItems().length; i++)
