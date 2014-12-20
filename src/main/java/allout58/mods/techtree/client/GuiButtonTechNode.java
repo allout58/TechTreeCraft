@@ -25,7 +25,7 @@
 package allout58.mods.techtree.client;
 
 import allout58.mods.techtree.tree.FakeNode;
-import allout58.mods.techtree.tree.INode;
+import allout58.mods.techtree.tree.TechNode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -38,9 +38,9 @@ public class GuiButtonTechNode extends GuiButton
 {
     public GuiElementProgressBar bar;
 
-    private INode node;
+    private TechNode node;
 
-    public GuiButtonTechNode(int id, int x, int y, int width, int height, INode node)
+    public GuiButtonTechNode(int id, int x, int y, int width, int height, TechNode node)
     {
         super(id, x, y, width, height, "");
 
@@ -117,7 +117,7 @@ public class GuiButtonTechNode extends GuiButton
         }
     }
 
-    public INode getNode()
+    public TechNode getNode()
     {
         return node;
     }

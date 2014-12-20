@@ -80,13 +80,10 @@ public class TechNodeGSON
         jsonObject.addProperty("description", src.getDescription());
 
         final JsonArray jsonParents = new JsonArray();
-        for (final INode parent : src.getParents())
+        for (final TechNode parent : src.getParents())
         {
-            if (parent instanceof TechNode)
-            {
-                final JsonPrimitive jsonParent = new JsonPrimitive(parent.getId());
-                jsonParents.add(jsonParent);
-            }
+            final JsonPrimitive jsonParent = new JsonPrimitive(parent.getId());
+            jsonParents.add(jsonParent);
         }
 
         jsonObject.add("parents", jsonParents);

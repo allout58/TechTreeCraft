@@ -28,7 +28,6 @@ import allout58.mods.techtree.network.NetworkManager;
 import allout58.mods.techtree.network.message.RequestResearch;
 import allout58.mods.techtree.research.ResearchClient;
 import allout58.mods.techtree.tree.FakeNode;
-import allout58.mods.techtree.tree.INode;
 import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
 import allout58.mods.techtree.util.RenderingHelper;
@@ -75,7 +74,7 @@ public class GuiTree extends GuiScreen
         buttons = new GuiButtonTechNode[TechNode.NEXT_ID];
 
         if (!ResearchClient.getInstance(uuid).isUpdated())
-            for (INode node : tree.getNodes())
+            for (TechNode node : tree.getNodes())
                 if (node.getClass().equals(TechNode.class))
                     NetworkManager.INSTANCE.sendToServer(new RequestResearch(uuid, node.getId()));
     }
@@ -106,17 +105,17 @@ public class GuiTree extends GuiScreen
         for (int i = 0; i < tree.getMaxWidth(); i++)
             yCoords.add(i, nodeHeight * i + PAD_Y * (i + 1));
 
-        for (HashSet<INode> list : tree.getList())
+        for (HashSet<TechNode> list : tree.getList())
         {
             int treeWidth = list.size();
 
             //int yStart = (height - HEIGHT) / 2 + ((tree.getMaxWidth() - treeWidth - 1) * nodeHeight + (treeWidth - tree.getMaxWidth()) * PAD_Y) / 2 + 15;
             int yLoc = (tree.getMaxWidth() - list.size()) / 2;
 
-            Iterator<INode> it = list.iterator();
+            Iterator<TechNode> it = list.iterator();
             for (int i = 0; i < treeWidth; i++)
             {
-                INode node = it.next();
+                TechNode node = it.next();
                 GuiButtonTechNode btn = new GuiButtonTechNode(node.getId(), xCoords.get(node.getDepth() - 1), yCoords.get(i + yLoc) + 20, nodeWidth, nodeHeight, node);
 
                 buttons[node.getId()] = btn;

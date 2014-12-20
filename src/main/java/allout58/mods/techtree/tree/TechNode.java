@@ -36,23 +36,23 @@ import java.util.List;
 /**
  * Created by James Hollowell on 12/6/2014.
  */
-public class TechNode implements INode
+public class TechNode
 {
     public static int NEXT_ID = 0;
 
     //Basic tree structure
-    private ArrayList<INode> parents = new ArrayList<INode>();
-    private ArrayList<INode> children = new ArrayList<INode>();
-    private ArrayList<Integer> parentID = new ArrayList<Integer>();
-    private int id = -1;
-    private int depth = -1;
+    protected ArrayList<TechNode> parents = new ArrayList<TechNode>();
+    protected ArrayList<TechNode> children = new ArrayList<TechNode>();
+    protected ArrayList<Integer> parentID = new ArrayList<Integer>();
+    protected int id = -1;
+    protected int depth = -1;
     //Tech Tree data
-    private String name;
-    private int scienceRequired = -1;
-    private String description;
-    private ItemStack[] lockedItems;
+    protected String name;
+    protected int scienceRequired = -1;
+    protected String description;
+    protected ItemStack[] lockedItems;
     //Runtime data
-    private NodeMode mode = NodeMode.Locked;
+    protected NodeMode mode = NodeMode.Locked;
 
     /**
      * @param id ID to assign to this node. Used for (de)serialization.
@@ -62,7 +62,7 @@ public class TechNode implements INode
         NEXT_ID = Math.max(id, NEXT_ID) + 1;
         this.id = id;
     }
-
+    
     public TechNode(TechNode copy)
     {
         this(copy.getId());
@@ -87,7 +87,7 @@ public class TechNode implements INode
      *
      * @param parent The parent node
      */
-    public void addParentNode(INode parent)
+    public void addParentNode(TechNode parent)
     {
         parents.add(parent);
     }
@@ -97,7 +97,7 @@ public class TechNode implements INode
      *
      * @param child The child node
      */
-    public void addChildNode(INode child)
+    public void addChildNode(TechNode child)
     {
         children.add(child);
     }
@@ -163,7 +163,7 @@ public class TechNode implements INode
     /**
      * @return The node's list of parents (in Node form)
      */
-    public List<INode> getParents()
+    public List<TechNode> getParents()
     {
         return parents;
     }
@@ -176,13 +176,11 @@ public class TechNode implements INode
         return lockedItems;
     }
 
-    @Override
     public NodeMode getMode()
     {
         return mode;
     }
 
-    @Override
     public void setMode(NodeMode mode)
     {
         this.mode = mode;
@@ -195,7 +193,7 @@ public class TechNode implements INode
             NetworkManager.INSTANCE.sendToServer(new UpdateNodeMode(FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString(), this.getId(), this.mode));
     }
 
-    public List<INode> getChildren()
+    public List<TechNode> getChildren()
     {
         return children;
     }
