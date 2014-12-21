@@ -31,7 +31,7 @@ import net.minecraft.client.gui.Gui;
  */
 public class GuiElementProgressBar extends GuiElement
 {
-    private static final float delta = .00001F;
+    private static final float delta = .0001F;
 
     private float max = 0;
     private float current = 0;

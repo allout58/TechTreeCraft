@@ -96,6 +96,7 @@ public class TechTree
     private void doFakeNodes()
     {
         //TODO Handle more than one depth difference between parents and children
+        List<TechNode> toAdd = new ArrayList<TechNode>();
         for (TechNode node : nodes)
         {
             for (int i = 0; i < node.getParents().size(); i++)
@@ -107,6 +108,7 @@ public class TechTree
 
                     ne.setDepth(node.getDepth() - 1);
                     list.get(ne.getDepth() - 1).add(ne);
+                    toAdd.add(ne);
 
                     node.getParents().remove(parent);
                     node.getParents().add(ne);
@@ -119,6 +121,8 @@ public class TechTree
                 }
             }
         }
+
+        nodes.addAll(toAdd);
     }
 
     public int getDepth()

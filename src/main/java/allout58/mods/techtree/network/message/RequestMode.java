@@ -22,26 +22,56 @@
  * SOFTWARE.                                                                  *
  ******************************************************************************/
 
-package allout58.mods.techtree.handler;
+package allout58.mods.techtree.network.message;
 
-import cpw.mods.fml.common.network.IGuiHandler;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
+import allout58.mods.techtree.research.ResearchServer;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import io.netty.buffer.ByteBuf;
 
 /**
- * Created by James Hollowell on 12/5/2014.
+ * Created by James Hollowell on 12/17/2014.
  */
-public class GuiHandler implements IGuiHandler
+public class RequestMode
+        implements IMessage
 {
-    @Override
-    public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    public String clientID = "";
+    public int nodeID = 0;
+
+    public RequestMode()
     {
-        return null;
+    }
+
+    public RequestMode(String clientID, int nodeID)
+    {
+        this.clientID = clientID;
+        this.nodeID = nodeID;
     }
 
     @Override
-    public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+    public void fromBytes(ByteBuf buf)
     {
-        return null;
+        this.clientID = ByteBufUtils.readUTF8String(buf);
+        this.nodeID = buf.readInt();
+    }
+
+    @Override
+    public void toBytes(ByteBuf buf)
+    {
+        ByteBufUtils.writeUTF8String(buf, clientID);
+        buf.writeInt(nodeID);
+    }
+
+    public static class Handler
+            implements IMessageHandler<RequestMode, UpdateNodeMode>
+    {
+
+        @Override
+        public UpdateNodeMode onMessage(RequestMode message, MessageContext ctx)
+        {
+            return new UpdateNodeMode(message.clientID, message.nodeID, ResearchServer.getInstance().getMode(message.clientID, message.nodeID));
+        }
     }
 }

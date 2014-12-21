@@ -24,8 +24,10 @@
 
 package allout58.mods.techtree.client;
 
+import allout58.mods.techtree.research.ResearchClient;
 import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.TechNode;
+import cpw.mods.fml.client.FMLClientHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -49,12 +51,20 @@ public class GuiButtonTechNode extends GuiButton
             this.visible = this.enabled = false;
             this.height = 2;
         }
+        else
+        {
+            try
+            {
+                bar = new GuiElementProgressBar(width - 10, 5, x + 5, y + height - 8, (float) (ResearchClient.getInstance().getResearch(node.getId())) / (float) (node.getScienceRequired()), 0xFF119911, 0xFF991111);
+                bar.setVisible(true);
+            }
+            catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+        }
 
         this.node = node;
-
-        bar = new GuiElementProgressBar(width - 10, 5, x + 5, y + height - 8, .5F, 0xFF119911, 0xFF991111);
-        bar.setVisible(true);
-
     }
 
     @Override
@@ -62,12 +72,23 @@ public class GuiButtonTechNode extends GuiButton
     {
         if (this.visible)
         {
+            try
+            {
+                bar.setMax((float) (ResearchClient.getInstance().getResearch(node.getId())) / (float) (node.getScienceRequired()));
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
             FontRenderer fontRenderer = mc.fontRenderer;
             boolean mouseOver = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + width && mouseY < yPosition + height;
 
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-            switch (node.getMode())
+            String playerUUID = FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString();
+
+            switch (ResearchClient.getInstance(playerUUID).getMode(node.getId()))
             {
                 case Locked:
                     drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFF777777, 0xFF333333);

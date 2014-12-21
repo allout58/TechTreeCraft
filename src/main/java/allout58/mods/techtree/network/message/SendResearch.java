@@ -39,6 +39,10 @@ public class SendResearch
     public int nodeID = 0;
     public int research = 0;
 
+    public SendResearch()
+    {
+    }
+
     public SendResearch(int nodeID, int research)
     {
         this.nodeID = nodeID;

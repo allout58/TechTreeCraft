@@ -24,6 +24,7 @@
 
 package allout58.mods.techtree.research;
 
+import allout58.mods.techtree.tree.NodeMode;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -41,7 +42,7 @@ public class ResearchClient
      * Client's UUID
      */
     private String clientID;
-    private Map<Integer, Integer> researchList = new HashMap<Integer, Integer>();
+    private Map<Integer, ResearchData> researchList = new HashMap<Integer, ResearchData>();
 
     public ResearchClient(String clientID)
     {
@@ -69,12 +70,25 @@ public class ResearchClient
 
     public void setResearch(int nodeID, int newVal)
     {
-        researchList.put(nodeID, newVal);
+        if (researchList.get(nodeID) == null)
+            researchList.put(nodeID, new ResearchData(nodeID, newVal, NodeMode.Locked, clientID));
+        else
+            researchList.get(nodeID).setResearchAmount(newVal);
     }
 
     public int getResearch(int nodeID)
     {
-        return researchList.get(nodeID);
+        return researchList.containsKey(nodeID) ? researchList.get(nodeID).getResearchAmount() : 0;
+    }
+
+    public void setMode(int nodeID, NodeMode mode)
+    {
+        researchList.get(nodeID).setMode(mode);
+    }
+
+    public NodeMode getMode(int nodeID)
+    {
+        return researchList.get(nodeID) != null ? researchList.get(nodeID).getMode() : NodeMode.Locked;
     }
 
     public boolean isUpdated()

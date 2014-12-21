@@ -25,16 +25,19 @@
 package allout58.mods.techtree.client;
 
 import allout58.mods.techtree.network.NetworkManager;
+import allout58.mods.techtree.network.message.ChangeNodeMode;
 import allout58.mods.techtree.network.message.RequestResearch;
 import allout58.mods.techtree.research.ResearchClient;
 import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
 import allout58.mods.techtree.util.RenderingHelper;
+import cpw.mods.fml.client.FMLClientHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.StatCollector;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -71,7 +74,7 @@ public class GuiTree extends GuiScreen
         super();
         this.tree = tree;
         uuid = player.toString();
-        buttons = new GuiButtonTechNode[TechNode.NEXT_ID];
+        buttons = new GuiButtonTechNode[tree.getNodes().size()];
 
         if (!ResearchClient.getInstance(uuid).isUpdated())
             for (TechNode node : tree.getNodes())
@@ -129,7 +132,11 @@ public class GuiTree extends GuiScreen
     {
         if (button instanceof GuiButtonTechNode)
         {
-            ((GuiButtonTechNode) button).getNode().nextMode();
+            TechNode node = ((GuiButtonTechNode) button).getNode();
+            String playerUuid = FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString();
+            node.nextMode();
+            ResearchClient.getInstance(playerUuid).setMode(node.getId(), node.getMode());
+            NetworkManager.INSTANCE.sendToServer(new ChangeNodeMode(playerUuid, node.getId(), node.getMode()));
         }
     }
 
@@ -159,16 +166,18 @@ public class GuiTree extends GuiScreen
             for (GuiButton btn : buttons)
                 btn.visible = !btn.visible;
         }
-        //        if (key == Keyboard.KEY_LEFT)
-        //        {
-        //            for (GuiButton btn : buttons)
-        //                ((GuiButtonTechNode) btn).bar.setMax(.4F);
-        //        }
-        //        if (key == Keyboard.KEY_RIGHT)
-        //        {
-        //            for (GuiButton btn : buttons)
-        //                ((GuiButtonTechNode) btn).bar.setMax(.6F);
-        //        }
+        if (key == Keyboard.KEY_LEFT)
+        {
+            for (GuiButton btn : buttons)
+                if (btn.visible)
+                    ((GuiButtonTechNode) btn).bar.setMax(.1F);
+        }
+        if (key == Keyboard.KEY_RIGHT)
+        {
+            for (GuiButton btn : buttons)
+                if (btn.visible)
+                    ((GuiButtonTechNode) btn).bar.setMax(.9F);
+        }
     }
 
     protected void drawBackground()
@@ -186,11 +195,12 @@ public class GuiTree extends GuiScreen
 
         for (GuiButtonTechNode btn : buttons)
         {
-            for (int node : btn.getNode().getParentID())
+            TechNode btnNode = btn.getNode();
+            for (int node : btnNode.getParentID())
             {
                 RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), buttons[node].getOutX(), buttons[node].getOutY(), 2.5f, 0);
             }
-            if (btn.getNode().getClass().equals(FakeNode.class))
+            if (btnNode.getClass().equals(FakeNode.class))
             {
                 RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), btn.getOutX(), btn.getOutY(), 2.5f, 0);
             }

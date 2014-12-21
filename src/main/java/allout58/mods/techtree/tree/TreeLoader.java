@@ -55,15 +55,15 @@ public class TreeLoader
             Reader reader = new FileReader(file);
             TechNode[] nodes = gson.fromJson(reader, TechNode[].class);
 
-            for (int i = 0; i < nodes.length; i++)
+            for (TechNode node : nodes)
             {
-                if (nodes[i].getParentID().size() == 0)
+                if (node.getParentID().size() == 0)
                 {
-                    head = nodes[i];
+                    head = node;
                 }
                 else
                 {
-                    TechNode child = nodes[i];
+                    TechNode child = node;
                     for (int parentID : child.getParentID())
                     {
                         if (parentID == child.getId())

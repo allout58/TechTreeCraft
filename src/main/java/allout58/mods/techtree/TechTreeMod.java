@@ -24,21 +24,24 @@
 
 package allout58.mods.techtree;
 
+import allout58.mods.techtree.commands.ResearchCommand;
 import allout58.mods.techtree.common.block.BlockRegistry;
+import allout58.mods.techtree.handler.TickHandler;
 import allout58.mods.techtree.lib.ModInfo;
 import allout58.mods.techtree.network.NetworkManager;
 import allout58.mods.techtree.proxy.ISidedProxy;
-import allout58.mods.techtree.research.ResearchClient;
+import allout58.mods.techtree.research.ResearchServer;
 import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
 import allout58.mods.techtree.tree.TreeLoader;
 import allout58.mods.techtree.util.LogHelper;
 import allout58.mods.techtree.util.VersionChecker;
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -73,6 +76,7 @@ public class TechTreeMod
     @Mod.EventHandler
     public void pre(FMLPreInitializationEvent event)
     {
+        //Todo: Ensure tree on client and server is the same
         LogHelper.init(event.getModLog());
         LogHelper.logger.info(LogHelper.PREINIT, "TechTree " + version + " pre-initializing");
         NetworkManager.init();
@@ -82,17 +86,33 @@ public class TechTreeMod
 
         /*--------------- Register Events ---------------- */
         MinecraftForge.EVENT_BUS.register(VersionChecker.instance);
+        FMLCommonHandler.instance().bus().register(TickHandler.INSTANCE);
 
         /*--------------- Register blocks/items/TEs ------------------*/
         BlockRegistry.register();
         registerTileEntities();
 
-        if (FMLCommonHandler.instance().getEffectiveSide().isClient())
-            ResearchClient.getInstance(FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString());
+        //if (FMLCommonHandler.instance().getEffectiveSide().isClient())
+        //    ResearchClient.getInstance(FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString());
 
         //CraftingManager.getInstance().getRecipeList().clear();
 
         LogHelper.logger.info(LogHelper.PREINIT, "TechTree pre-initialization complete");
+    }
+
+    @Mod.EventHandler
+    public void serverLoad(FMLServerStartingEvent event)
+    {
+        event.registerServerCommand(new ResearchCommand());
+        ResearchServer.getInstance().load();
+        //Todo: load tree(s) and the research progress from disk
+    }
+
+    @Mod.EventHandler
+    public void serverUnload(FMLServerStoppingEvent event)
+    {
+        ResearchServer.getInstance().save();
+        //Todo: save the research progress to disk
     }
 
     static

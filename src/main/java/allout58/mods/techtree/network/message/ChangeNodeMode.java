@@ -24,7 +24,7 @@
 
 package allout58.mods.techtree.network.message;
 
-import allout58.mods.techtree.research.ResearchClient;
+import allout58.mods.techtree.research.ResearchServer;
 import allout58.mods.techtree.tree.NodeMode;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -35,18 +35,18 @@ import io.netty.buffer.ByteBuf;
 /**
  * Created by James Hollowell on 12/18/2014.
  */
-public class UpdateNodeMode implements IMessage
+public class ChangeNodeMode implements IMessage
 {
 
     String uuid = "";
     int nodeID = -1;
     NodeMode newMode = NodeMode.Locked;
 
-    public UpdateNodeMode()
+    public ChangeNodeMode()
     {
     }
 
-    public UpdateNodeMode(String uuid, int nodeID, NodeMode newMode)
+    public ChangeNodeMode(String uuid, int nodeID, NodeMode newMode)
     {
         this.uuid = uuid;
         this.nodeID = nodeID;
@@ -70,13 +70,14 @@ public class UpdateNodeMode implements IMessage
     }
 
     public static class Handler
-            implements IMessageHandler<UpdateNodeMode, IMessage>
+            implements IMessageHandler<ChangeNodeMode, IMessage>
     {
-        //Side: Client
+
+        //Side: Server
         @Override
-        public IMessage onMessage(UpdateNodeMode message, MessageContext ctx)
+        public IMessage onMessage(ChangeNodeMode message, MessageContext ctx)
         {
-            ResearchClient.getInstance(message.uuid).setMode(message.nodeID, message.newMode);
+            ResearchServer.getInstance().setMode(message.uuid, message.nodeID, message.newMode);
             return null;
         }
     }

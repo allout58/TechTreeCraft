@@ -34,6 +34,7 @@ public class FakeNode extends TechNode
     public FakeNode(TechNode parent, TechNode child, int id)
     {
         super(id);
+        addParentNode(parent.getId());
         addParentNode(parent);
         addChildNode(child);
         setup("FakeNode" + id, -1, "What description?", new ItemStack[] { });

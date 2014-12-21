@@ -24,7 +24,14 @@
 
 package allout58.mods.techtree.research;
 
+import allout58.mods.techtree.TechTreeMod;
+import allout58.mods.techtree.tree.FakeNode;
+import allout58.mods.techtree.tree.NodeMode;
+import allout58.mods.techtree.tree.TechNode;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,7 +41,7 @@ public class ResearchServer
 {
     private static ResearchServer INSTANCE;
 
-    private Map<String, HashMap<Integer, Integer>> data = new HashMap<String, HashMap<Integer, Integer>>();
+    private Map<String, HashMap<Integer, ResearchData>> data = new HashMap<String, HashMap<Integer, ResearchData>>();
 
     public static ResearchServer getInstance()
     {
@@ -47,14 +54,57 @@ public class ResearchServer
     {
         if (data.get(uuid) == null)
             return -1;
-        return data.get(uuid).get(nodeID);
+        return data.get(uuid).get(nodeID).getResearchAmount();
     }
 
     public void setResearch(String uuid, int nodeID, int value)
     {
+        //Todo: Ensure `value` is less than or equal to the science required for the node
         if (data.get(uuid) == null)
-            data.put(uuid, new HashMap<Integer, Integer>());
-        data.get(uuid).put(nodeID, value);
+            data.put(uuid, new HashMap<Integer, ResearchData>());
+        if (data.get(uuid).get(nodeID) == null)
+            data.get(uuid).put(nodeID, new ResearchData(nodeID, value, NodeMode.Locked, uuid));
+        else
+            data.get(uuid).get(nodeID).setResearchAmount(value);
+    }
+
+    public void setMode(String uuid, int nodeID, NodeMode mode)
+    {
+        if (data.get(uuid) == null || data.get(uuid).get(nodeID) == null)
+            throw new IllegalArgumentException("Trying to change the mode of a node that doesn't exist or whose player doesn't exist: " + uuid + " " + nodeID + " " + mode.name());
+        data.get(uuid).get(nodeID).setMode(mode);
+    }
+
+    public NodeMode getMode(String uuid, int nodeID)
+    {
+        if (data.get(uuid) == null || data.get(uuid).get(nodeID) == null)
+            throw new IllegalArgumentException("Trying to change the mode of a node that doesn't exist or whose player doesn't exist: " + uuid + " " + nodeID);
+        return data.get(uuid).get(nodeID).getMode();
+    }
+
+    public void load()
+    {
+        //For now...
+        for (TechNode node : TechTreeMod.tree.getNodes())
+            if (!(node instanceof FakeNode))
+                setResearch("08338e60-fd0e-3489-b7d1-abc1d16f021c", node.getId(), 0);
+    }
+
+    public void save()
+    {
+        for (ResearchData d : data.get("08338e60-fd0e-3489-b7d1-abc1d16f021c").values())
+        {
+            System.out.println(String.format("ID: %d, Science: %d, Mode: %s", d.getNodeID(), d.getResearchAmount(), d.getMode().name()));
+        }
+    }
+
+    public List<ResearchData> getAllData()
+    {
+        ArrayList<ResearchData> out = new ArrayList<ResearchData>();
+        for (HashMap<Integer, ResearchData> sub : data.values())
+            for (ResearchData d : sub.values())
+                out.add(d);
+        return out;
     }
 
 }

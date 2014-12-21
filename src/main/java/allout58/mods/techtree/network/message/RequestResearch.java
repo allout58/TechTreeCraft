@@ -40,6 +40,10 @@ public class RequestResearch
     public String clientID = "";
     public int nodeID = 0;
 
+    public RequestResearch()
+    {
+    }
+
     public RequestResearch(String clientID, int nodeID)
     {
         this.clientID = clientID;
