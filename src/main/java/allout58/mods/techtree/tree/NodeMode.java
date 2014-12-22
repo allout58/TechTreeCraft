@@ -50,6 +50,11 @@ public enum NodeMode
         return NodeMode.getByID((mode.order + 1) % values().length);
     }
 
+    public static NodeMode max(NodeMode m1, NodeMode m2)
+    {
+        return getByID(Math.max(m1.order, m2.order));
+    }
+
     private static NodeMode getByID(int id)
     {
         return lookup.get(id);

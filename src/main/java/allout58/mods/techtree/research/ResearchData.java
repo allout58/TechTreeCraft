@@ -26,6 +26,7 @@ package allout58.mods.techtree.research;
 
 import allout58.mods.techtree.network.NetworkManager;
 import allout58.mods.techtree.network.message.SendResearch;
+import allout58.mods.techtree.network.message.UpdateNodeMode;
 import allout58.mods.techtree.tree.NodeMode;
 import allout58.mods.techtree.util.PlayerHelper;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -44,9 +45,9 @@ public class ResearchData
     public ResearchData(int nodeID, int researchAmount, NodeMode mode, String uuid)
     {
         this.nodeID = nodeID;
-        this.researchAmount = researchAmount;
         this.mode = mode;
         this.uuid = uuid;
+        setResearchAmount(researchAmount);
     }
 
     public int getNodeID()
@@ -72,13 +73,51 @@ public class ResearchData
     public void setResearchAmount(int researchAmount)
     {
         this.researchAmount = researchAmount;
-        EntityPlayerMP player = PlayerHelper.getPlayerFromUUID(getUuid(), FMLCommonHandler.instance().getMinecraftServerInstance());
-        if (player != null)
-            NetworkManager.INSTANCE.sendTo(new SendResearch(getNodeID(), getResearchAmount()), player);
+        if (FMLCommonHandler.instance().getEffectiveSide().isServer() && researchAmount % 10 == 0)
+        {
+            EntityPlayerMP player = PlayerHelper.getPlayerFromUUID(getUuid(), FMLCommonHandler.instance().getMinecraftServerInstance());
+            if (player != null)
+                NetworkManager.INSTANCE.sendTo(new SendResearch(getNodeID(), getResearchAmount(), getUuid()), player);
+        }
     }
 
     public void setMode(NodeMode mode)
     {
         this.mode = mode;
+        if (FMLCommonHandler.instance().getEffectiveSide().isServer())
+        {
+            EntityPlayerMP player = PlayerHelper.getPlayerFromUUID(getUuid(), FMLCommonHandler.instance().getMinecraftServerInstance());
+            if (player != null)
+                NetworkManager.INSTANCE.sendTo(new UpdateNodeMode(getUuid(), getNodeID(), getMode()), player);
+        }
+    }
+
+    public void forceUpdate()
+    {
+        if (FMLCommonHandler.instance().getEffectiveSide().isServer())
+        {
+            EntityPlayerMP player = PlayerHelper.getPlayerFromUUID(getUuid(), FMLCommonHandler.instance().getMinecraftServerInstance());
+            if (player != null)
+            {
+                NetworkManager.INSTANCE.sendTo(new SendResearch(getNodeID(), getResearchAmount(), getUuid()), player);
+                NetworkManager.INSTANCE.sendTo(new UpdateNodeMode(getUuid(), getNodeID(), getMode()), player);
+            }
+        }
+    }
+
+    public static IResearchHolder getSidedResearch()
+    {
+        try
+        {
+            if (FMLCommonHandler.instance().getEffectiveSide().isClient())
+                return ResearchClient.getInstance();
+            else
+                return ResearchServer.getInstance();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -24,36 +24,52 @@
 
 package allout58.mods.techtree.handler;
 
+import allout58.mods.techtree.network.NetworkManager;
+import allout58.mods.techtree.network.message.SendResearch;
+import allout58.mods.techtree.network.message.UpdateNodeMode;
+import allout58.mods.techtree.research.ResearchClient;
 import allout58.mods.techtree.research.ResearchData;
 import allout58.mods.techtree.research.ResearchServer;
-import allout58.mods.techtree.tree.NodeMode;
-import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
+import cpw.mods.fml.common.network.FMLNetworkEvent;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 
 /**
- * Created by James Hollowell on 12/19/2014.
+ * Created by James Hollowell on 12/22/2014.
  */
-public class TickHandler
+public class PlayerHandler
 {
-    public static final TickHandler INSTANCE = new TickHandler();
-
-    private long ticks = 0;
+    public static final PlayerHandler INSTANCE = new PlayerHandler();
 
     @SubscribeEvent
-    public void onTick(TickEvent.PlayerTickEvent event)
+    public void onJoinServer(PlayerEvent.PlayerLoggedInEvent event)
     {
-        if (TickEvent.Phase.START.equals(event.getPhase())) return;
-        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) return;
-        for (ResearchData data : ResearchServer.getInstance().getAllData())
+        String uuid = event.player.getUniqueID().toString();
+        assert event.player instanceof EntityPlayerMP;
+        for (ResearchData d : ResearchServer.getInstance().getAllData())
         {
-            if (data.getMode() == NodeMode.Researching)
+            if (uuid.equals(d.getUuid()))
             {
-                //if (data.getUuid().equals(event.player.getUniqueID()))
-                ResearchServer.getInstance().setResearch(data.getUuid(), data.getNodeID(), data.getResearchAmount() + 1);
+                NetworkManager.INSTANCE.sendTo(new SendResearch(d.getNodeID(), d.getResearchAmount(), uuid), (EntityPlayerMP) event.player);
+                NetworkManager.INSTANCE.sendTo(new UpdateNodeMode(uuid, d.getNodeID(), d.getMode()), (EntityPlayerMP) event.player);
             }
         }
-
     }
 
+    @SubscribeEvent
+    public void onLeaveClient(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
+    {
+        ResearchClient.getInstance(FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString()).reset();
+    }
+
+    @SubscribeEvent
+    public void onJoinClient(FMLNetworkEvent.ClientConnectedToServerEvent event)
+    {
+        EntityPlayer player = FMLClientHandler.instance().getClient().thePlayer;
+        if (player != null)
+            ResearchClient.getInstance(player.getUniqueID().toString());
+    }
 }

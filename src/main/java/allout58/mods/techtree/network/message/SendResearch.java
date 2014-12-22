@@ -25,6 +25,7 @@
 package allout58.mods.techtree.network.message;
 
 import allout58.mods.techtree.research.ResearchClient;
+import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -36,17 +37,19 @@ import io.netty.buffer.ByteBuf;
 public class SendResearch
         implements IMessage
 {
-    public int nodeID = 0;
-    public int research = 0;
+    int nodeID = 0;
+    int research = 0;
+    String uuid = "";
 
     public SendResearch()
     {
     }
 
-    public SendResearch(int nodeID, int research)
+    public SendResearch(int nodeID, int research, String uuid)
     {
         this.nodeID = nodeID;
         this.research = research;
+        this.uuid = uuid;
     }
 
     @Override
@@ -54,7 +57,7 @@ public class SendResearch
     {
         nodeID = buf.readInt();
         research = buf.readInt();
-
+        uuid = ByteBufUtils.readUTF8String(buf);
     }
 
     @Override
@@ -62,6 +65,7 @@ public class SendResearch
     {
         buf.writeInt(nodeID);
         buf.writeInt(research);
+        ByteBufUtils.writeUTF8String(buf, uuid);
     }
 
     public static class Handler
@@ -70,14 +74,7 @@ public class SendResearch
         @Override
         public IMessage onMessage(SendResearch message, MessageContext ctx)
         {
-            try
-            {
-                ResearchClient.getInstance().setResearch(message.nodeID, message.research);
-            }
-            catch (IllegalAccessException e)
-            {
-                e.printStackTrace();
-            }
+            ResearchClient.getInstance(message.uuid).setResearch(message.nodeID, message.research);
             return null;
         }
     }

@@ -26,6 +26,7 @@ package allout58.mods.techtree.network.message;
 
 import allout58.mods.techtree.research.ResearchServer;
 import allout58.mods.techtree.tree.NodeMode;
+import allout58.mods.techtree.util.LogHelper;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -77,7 +78,14 @@ public class ChangeNodeMode implements IMessage
         @Override
         public IMessage onMessage(ChangeNodeMode message, MessageContext ctx)
         {
-            ResearchServer.getInstance().setMode(message.uuid, message.nodeID, message.newMode);
+            try
+            {
+                ResearchServer.getInstance().setMode(message.uuid, message.nodeID, message.newMode);
+            }
+            catch (IllegalAccessException e)
+            {
+                LogHelper.logger.error("Error setting mode on server", e);
+            }
             return null;
         }
     }

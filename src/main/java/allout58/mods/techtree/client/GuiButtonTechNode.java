@@ -106,7 +106,7 @@ public class GuiButtonTechNode extends GuiButton
                     bar.setEnabled(false);
                     break;
                 default:
-                    System.err.println("ERROR! Invalid button state! o.O" + node.getMode());
+                    System.err.println("ERROR! Invalid button state! o.O");
             }
 
             if (mouseOver)
@@ -125,7 +125,7 @@ public class GuiButtonTechNode extends GuiButton
             GL11.glPushMatrix();
             GL11.glScaled(.5, .5, .5);
             GL11.glTranslated(xPosition, yPosition, 0);
-            fontRenderer.drawString(node.getMode().name(), xPosition + 2, yPosition + 10 + fontRenderer.FONT_HEIGHT, 0xFFFFFFFF, false);
+            fontRenderer.drawString(ResearchClient.getInstance(playerUUID).getMode(node.getId()).name(), xPosition + 2, yPosition + 10 + fontRenderer.FONT_HEIGHT, 0xFFFFFFFF, false);
             //fontRenderer.drawSplitString(node.getDescription(), xPosition + 4, yPosition + 18 + fontRenderer.FONT_HEIGHT * 2, width * 2, 0xFFFFFFFF);
             GL11.glPopMatrix();
 

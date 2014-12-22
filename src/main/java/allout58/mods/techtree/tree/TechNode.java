@@ -24,10 +24,7 @@
 
 package allout58.mods.techtree.tree;
 
-import allout58.mods.techtree.network.NetworkManager;
-import allout58.mods.techtree.network.message.UpdateNodeMode;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.FMLCommonHandler;
+import allout58.mods.techtree.research.ResearchData;
 import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
@@ -36,7 +33,7 @@ import java.util.List;
 /**
  * Created by James Hollowell on 12/6/2014.
  */
-public class TechNode
+public class TechNode implements Comparable<TechNode>
 {
     public static int NEXT_ID = 0;
 
@@ -51,8 +48,6 @@ public class TechNode
     protected int scienceRequired = -1;
     protected String description;
     protected ItemStack[] lockedItems;
-    //Runtime data
-    protected NodeMode mode = NodeMode.Locked;
 
     /**
      * @param id ID to assign to this node. Used for (de)serialization.
@@ -62,7 +57,7 @@ public class TechNode
         NEXT_ID = Math.max(id, NEXT_ID) + 1;
         this.id = id;
     }
-    
+
     public TechNode(TechNode copy)
     {
         this(copy.getId());
@@ -176,23 +171,6 @@ public class TechNode
         return lockedItems;
     }
 
-    public NodeMode getMode()
-    {
-        return mode;
-    }
-
-    public void setMode(NodeMode mode)
-    {
-        this.mode = mode;
-    }
-
-    public void nextMode()
-    {
-        this.mode = NodeMode.next(this.mode);
-        if (FMLCommonHandler.instance().getEffectiveSide().isClient())
-            NetworkManager.INSTANCE.sendToServer(new UpdateNodeMode(FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString(), this.getId(), this.mode));
-    }
-
     public List<TechNode> getChildren()
     {
         return children;
@@ -206,5 +184,26 @@ public class TechNode
     public void setDepth(int depth)
     {
         this.depth = depth;
+    }
+
+    /**
+     * @param previous The previous state of this node
+     * @return The new state of this node
+     */
+    public NodeMode onParentUpdate(NodeMode previous)
+    {
+        //FIXME THIS WILL BREAK WITH MORE THAN ONE PLAYER!!!!
+        boolean shouldAdv = true;
+        for (TechNode parent : parents)
+            for (ResearchData d : ResearchData.getSidedResearch().getAllData())
+                if (d.getNodeID() == parent.getId())
+                    shouldAdv &= d.getMode() == NodeMode.Completed;
+        return shouldAdv ? NodeMode.next(previous) : previous;
+    }
+
+    @Override
+    public int compareTo(TechNode o)
+    {
+        return Integer.compare(getId(), o.getId());
     }
 }

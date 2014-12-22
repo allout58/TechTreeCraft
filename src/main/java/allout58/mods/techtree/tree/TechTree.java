@@ -28,8 +28,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Created by James Hollowell on 12/8/2014.
@@ -41,8 +44,9 @@ public class TechTree
     private TechNode head;
     private int depth = 0;
     private int maxWidth = 0;
-    private ArrayList<HashSet<TechNode>> list = new ArrayList<HashSet<TechNode>>(depth);
-    private HashSet<TechNode> nodes = new HashSet<TechNode>();
+    private ArrayList<TreeSet<TechNode>> list = new ArrayList<TreeSet<TechNode>>();
+    private Set<TechNode> nodes = new TreeSet<TechNode>();
+    private Map<Integer, TechNode> nodeMap = new HashMap<Integer, TechNode>();
 
     public TechTree(TechNode head)
     {
@@ -54,7 +58,7 @@ public class TechTree
     {
         doMaxDepth(head, 0);
         for (int i = 0; i < depth; i++)
-            list.add(new HashSet<TechNode>());
+            list.add(new TreeSet<TechNode>());
         doMaxWidth();
         log.info("Depth found: " + depth);
         log.info("Max Width found: " + maxWidth);
@@ -68,6 +72,7 @@ public class TechTree
         assert node != null;
         node.setDepth(Math.max(currDepth + 1, node.getDepth()));
         nodes.add(node);
+        nodeMap.put(node.getId(), node);
         if (node.getChildren().size() == 0)
         {
             depth = Math.max(currDepth + 1, depth);
@@ -135,13 +140,18 @@ public class TechTree
         return maxWidth;
     }
 
-    public List<HashSet<TechNode>> getList()
+    public List<TreeSet<TechNode>> getList()
     {
         return list;
     }
 
-    public HashSet<TechNode> getNodes()
+    public Set<TechNode> getNodes()
     {
         return nodes;
+    }
+
+    public TechNode getNodeByID(int id)
+    {
+        return nodeMap.get(id);
     }
 }

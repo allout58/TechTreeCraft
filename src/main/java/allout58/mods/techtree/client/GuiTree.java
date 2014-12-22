@@ -29,6 +29,7 @@ import allout58.mods.techtree.network.message.ChangeNodeMode;
 import allout58.mods.techtree.network.message.RequestResearch;
 import allout58.mods.techtree.research.ResearchClient;
 import allout58.mods.techtree.tree.FakeNode;
+import allout58.mods.techtree.tree.NodeMode;
 import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
 import allout58.mods.techtree.util.RenderingHelper;
@@ -41,9 +42,9 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.UUID;
 
 /**
@@ -108,7 +109,7 @@ public class GuiTree extends GuiScreen
         for (int i = 0; i < tree.getMaxWidth(); i++)
             yCoords.add(i, nodeHeight * i + PAD_Y * (i + 1));
 
-        for (HashSet<TechNode> list : tree.getList())
+        for (TreeSet<TechNode> list : tree.getList())
         {
             int treeWidth = list.size();
 
@@ -134,9 +135,13 @@ public class GuiTree extends GuiScreen
         {
             TechNode node = ((GuiButtonTechNode) button).getNode();
             String playerUuid = FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString();
-            node.nextMode();
-            ResearchClient.getInstance(playerUuid).setMode(node.getId(), node.getMode());
-            NetworkManager.INSTANCE.sendToServer(new ChangeNodeMode(playerUuid, node.getId(), node.getMode()));
+            NodeMode mode = ResearchClient.getInstance(playerUuid).getMode(node.getId());
+            if (mode == NodeMode.Unlocked)
+            {
+                mode = NodeMode.next(mode);
+                ResearchClient.getInstance(playerUuid).setMode(node.getId(), mode);
+                NetworkManager.INSTANCE.sendToServer(new ChangeNodeMode(playerUuid, node.getId(), mode));
+            }
         }
     }
 

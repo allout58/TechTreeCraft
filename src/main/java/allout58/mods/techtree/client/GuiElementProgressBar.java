@@ -73,6 +73,8 @@ public class GuiElementProgressBar extends GuiElement
     */
     private void update()
     {
+        //This line disables the slewing for now...
+        current = max;
         if (current != max)
         {
             float diff = delta * (System.currentTimeMillis() - lastTime);

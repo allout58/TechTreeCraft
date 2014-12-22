@@ -71,7 +71,7 @@ public class RequestResearch
         @Override
         public SendResearch onMessage(RequestResearch message, MessageContext ctx)
         {
-            return new SendResearch(message.nodeID, ResearchServer.getInstance().getResearch(message.clientID, message.nodeID));
+            return new SendResearch(message.nodeID, ResearchServer.getInstance().getResearch(message.clientID, message.nodeID), message.clientID);
         }
     }
 }

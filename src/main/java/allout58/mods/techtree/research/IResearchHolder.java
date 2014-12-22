@@ -22,38 +22,14 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.handler;
+package allout58.mods.techtree.research;
 
-import allout58.mods.techtree.research.ResearchData;
-import allout58.mods.techtree.research.ResearchServer;
-import allout58.mods.techtree.tree.NodeMode;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
+import java.util.List;
 
 /**
- * Created by James Hollowell on 12/19/2014.
+ * Created by James Hollowell on 12/21/2014.
  */
-public class TickHandler
+public interface IResearchHolder
 {
-    public static final TickHandler INSTANCE = new TickHandler();
-
-    private long ticks = 0;
-
-    @SubscribeEvent
-    public void onTick(TickEvent.PlayerTickEvent event)
-    {
-        if (TickEvent.Phase.START.equals(event.getPhase())) return;
-        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) return;
-        for (ResearchData data : ResearchServer.getInstance().getAllData())
-        {
-            if (data.getMode() == NodeMode.Researching)
-            {
-                //if (data.getUuid().equals(event.player.getUniqueID()))
-                ResearchServer.getInstance().setResearch(data.getUuid(), data.getNodeID(), data.getResearchAmount() + 1);
-            }
-        }
-
-    }
-
+    List<ResearchData> getAllData();
 }

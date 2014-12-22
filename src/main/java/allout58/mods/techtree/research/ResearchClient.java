@@ -24,18 +24,23 @@
 
 package allout58.mods.techtree.research;
 
+import allout58.mods.techtree.TechTreeMod;
+import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.NodeMode;
+import allout58.mods.techtree.tree.TechNode;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Created by James Hollowell on 12/17/2014.
  */
 @SideOnly(Side.CLIENT)
-public class ResearchClient
+public class ResearchClient implements IResearchHolder
 {
     private static ResearchClient INSTANCE;
     /**
@@ -47,6 +52,12 @@ public class ResearchClient
     public ResearchClient(String clientID)
     {
         this.clientID = clientID;
+        for (TechNode node : TechTreeMod.tree.getNodes())
+        {
+            if (node instanceof FakeNode) continue;
+            setResearch(node.getId(), 0);
+            setMode(node.getId(), NodeMode.Locked);
+        }
     }
 
     public static ResearchClient getInstance() throws IllegalAccessException
@@ -91,8 +102,29 @@ public class ResearchClient
         return researchList.get(nodeID) != null ? researchList.get(nodeID).getMode() : NodeMode.Locked;
     }
 
+    @Override
+    public List<ResearchData> getAllData()
+    {
+        return new ArrayList<ResearchData>(researchList.values());
+    }
+
     public boolean isUpdated()
     {
         return researchList.size() != 0;
+    }
+
+    public void reset()
+    {
+        for (ResearchData d : researchList.values())
+        {
+            System.out.println(String.format("Client-side -- ID: %d, Science: %d/%d, Mode: %s", d.getNodeID(), d.getResearchAmount(), TechTreeMod.tree.getNodeByID(d.getNodeID()).getScienceRequired(), d.getMode().name()));
+        }
+        researchList.clear();
+        for (TechNode node : TechTreeMod.tree.getNodes())
+        {
+            if (node instanceof FakeNode) continue;
+            setResearch(node.getId(), 0);
+            setMode(node.getId(), NodeMode.Locked);
+        }
     }
 }

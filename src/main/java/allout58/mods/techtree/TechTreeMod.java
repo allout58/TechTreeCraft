@@ -26,6 +26,7 @@ package allout58.mods.techtree;
 
 import allout58.mods.techtree.commands.ResearchCommand;
 import allout58.mods.techtree.common.block.BlockRegistry;
+import allout58.mods.techtree.handler.PlayerHandler;
 import allout58.mods.techtree.handler.TickHandler;
 import allout58.mods.techtree.lib.ModInfo;
 import allout58.mods.techtree.network.NetworkManager;
@@ -87,6 +88,7 @@ public class TechTreeMod
         /*--------------- Register Events ---------------- */
         MinecraftForge.EVENT_BUS.register(VersionChecker.instance);
         FMLCommonHandler.instance().bus().register(TickHandler.INSTANCE);
+        FMLCommonHandler.instance().bus().register(PlayerHandler.INSTANCE);
 
         /*--------------- Register blocks/items/TEs ------------------*/
         BlockRegistry.register();
