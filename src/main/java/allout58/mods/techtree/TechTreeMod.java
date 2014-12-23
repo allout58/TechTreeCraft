@@ -78,6 +78,10 @@ public class TechTreeMod
     public void pre(FMLPreInitializationEvent event)
     {
         //Todo: Ensure tree on client and server is the same
+        //Todo: Make it work for other players, not just my uuid ;)
+        //Todo: Test multiplayer and true client-server.
+        //Todo: Find a better way to manage access to the tree data.
+
         LogHelper.init(event.getModLog());
         LogHelper.logger.info(LogHelper.PREINIT, "TechTree " + version + " pre-initializing");
         NetworkManager.init();
@@ -93,9 +97,6 @@ public class TechTreeMod
         /*--------------- Register blocks/items/TEs ------------------*/
         BlockRegistry.register();
         registerTileEntities();
-
-        //if (FMLCommonHandler.instance().getEffectiveSide().isClient())
-        //    ResearchClient.getInstance(FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString());
 
         //CraftingManager.getInstance().getRecipeList().clear();
 

@@ -30,11 +30,20 @@ import allout58.mods.techtree.tree.NodeMode;
 import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
 import allout58.mods.techtree.util.LogHelper;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.storage.SaveHandler;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Created by James Hollowell on 12/17/2014.
@@ -42,6 +51,8 @@ import java.util.Map;
 public class ResearchServer implements IResearchHolder
 {
     private static ResearchServer INSTANCE;
+
+    private static final Pattern uuidPattern = Pattern.compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}");
 
     private Map<String, HashMap<Integer, ResearchData>> data = new HashMap<String, HashMap<Integer, ResearchData>>();
 
@@ -137,30 +148,71 @@ public class ResearchServer implements IResearchHolder
 
     public void load()
     {
-        //For now...
-        for (TechNode node : TechTreeMod.tree.getNodes())
-            if (!(node instanceof FakeNode))
-                setResearch("08338e60-fd0e-3489-b7d1-abc1d16f021c", node.getId(), 0);
         try
         {
-            probeModes();
+            File outFile = getSaveFile();
+            BufferedReader br = new BufferedReader(new FileReader(outFile));
+            String line;
+            String currentUuid = "";
+            while ((line = br.readLine()) != null)
+            {
+                if (uuidPattern.matcher(line).matches())
+                {
+                    currentUuid = line;
+                    data.put(line, new HashMap<Integer, ResearchData>());
+                }
+                else
+                {
+                    ResearchData d = ResearchData.read(line, currentUuid);
+                    data.get(currentUuid).put(d.getNodeID(), d);
+                }
+            }
+            br.close();
         }
-        catch (IllegalAccessException e)
+        catch (IOException e)
         {
-            LogHelper.logger.error(e);
+            LogHelper.logger.error("Error reading data file!", e);
         }
-        catch (IllegalArgumentException e)
-        {
-            LogHelper.logger.error(e);
-        }
+
+        //        try
+        //        {
+        //            probeModes();
+        //        }
+        //        catch (IllegalAccessException e)
+        //        {
+        //            LogHelper.logger.error(e);
+        //        }
+        //        catch (IllegalArgumentException e)
+        //        {
+        //            LogHelper.logger.error(e);
+        //        }
     }
 
     public void save()
     {
-        for (ResearchData d : data.get("08338e60-fd0e-3489-b7d1-abc1d16f021c").values())
+        try
         {
-            System.out.println(String.format("Server-side -- ID: %d, Science: %d/%d, Mode: %s", d.getNodeID(), d.getResearchAmount(), TechTreeMod.tree.getNodeByID(d.getNodeID()).getScienceRequired(), d.getMode().name()));
+            File outFile = getSaveFile();
+            if (!outFile.exists())
+                outFile.createNewFile();
+            BufferedWriter bw = new BufferedWriter(new FileWriter(outFile));
+            for (Map.Entry<String, HashMap<Integer, ResearchData>> player : data.entrySet())
+            {
+                bw.write(player.getKey());
+                bw.newLine();
+                for (Map.Entry<Integer, ResearchData> dat : player.getValue().entrySet())
+                {
+                    bw.write(dat.getValue().toString());
+                    bw.newLine();
+                }
+            }
+            bw.close();
         }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         data.clear();
     }
 
@@ -174,4 +226,29 @@ public class ResearchServer implements IResearchHolder
         return out;
     }
 
+    public List<ResearchData> getClientData(String uuid)
+    {
+        return new ArrayList<ResearchData>(data.get(uuid).values());
+    }
+
+    public void makePlayerData(String uuid)
+    {
+        //Make a table for a new player
+        //This will not run if the player has already logged on to the server or is loaded from disk
+        if (data.get(uuid) == null)
+        {
+            data.put(uuid, new HashMap<Integer, ResearchData>());
+
+            //Fill all with 0
+            for (TechNode node : TechTreeMod.tree.getNodes())
+                if (!(node instanceof FakeNode))
+                    setResearch(uuid, node.getId(), 0);
+        }
+    }
+
+    private File getSaveFile()
+    {
+        SaveHandler saveHandler = (SaveHandler) MinecraftServer.getServer().worldServerForDimension(0).getSaveHandler();
+        return new File(saveHandler.getWorldDirectory().getAbsolutePath() + "/ttm.dat");
+    }
 }

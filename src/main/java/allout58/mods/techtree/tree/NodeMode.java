@@ -55,9 +55,14 @@ public enum NodeMode
         return getByID(Math.max(m1.order, m2.order));
     }
 
-    private static NodeMode getByID(int id)
+    public static NodeMode getByID(int id)
     {
         return lookup.get(id);
+    }
+
+    public int getId()
+    {
+        return order;
     }
 
     static

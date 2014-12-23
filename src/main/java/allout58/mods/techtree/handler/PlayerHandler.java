@@ -49,19 +49,28 @@ public class PlayerHandler
     {
         String uuid = event.player.getUniqueID().toString();
         assert event.player instanceof EntityPlayerMP;
-        for (ResearchData d : ResearchServer.getInstance().getAllData())
+
+        ResearchServer.getInstance().makePlayerData(uuid);
+        try
         {
-            if (uuid.equals(d.getUuid()))
-            {
-                NetworkManager.INSTANCE.sendTo(new SendResearch(d.getNodeID(), d.getResearchAmount(), uuid), (EntityPlayerMP) event.player);
-                NetworkManager.INSTANCE.sendTo(new UpdateNodeMode(uuid, d.getNodeID(), d.getMode()), (EntityPlayerMP) event.player);
-            }
+            ResearchServer.getInstance().probeModes();
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+
+        for (ResearchData d : ResearchServer.getInstance().getClientData(uuid))
+        {
+            NetworkManager.INSTANCE.sendTo(new SendResearch(d.getNodeID(), d.getResearchAmount(), uuid), (EntityPlayerMP) event.player);
+            NetworkManager.INSTANCE.sendTo(new UpdateNodeMode(uuid, d.getNodeID(), d.getMode()), (EntityPlayerMP) event.player);
         }
     }
 
     @SubscribeEvent
     public void onLeaveClient(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
     {
+        //Clear the client cache to prepare for different server/world
         ResearchClient.getInstance(FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString()).reset();
     }
 

@@ -120,4 +120,19 @@ public class ResearchData
         }
         return null;
     }
+
+    @Override
+    public String toString()
+    {
+        return nodeID + ", " + researchAmount + ", " + mode.getId();
+    }
+
+    public static ResearchData read(String line, String uuid)
+    {
+        String[] split = line.split(", ");
+        int nodeID = Integer.parseInt(split[0]);
+        int amnt = Integer.parseInt(split[1]);
+        NodeMode mode = NodeMode.getByID(Integer.parseInt(split[2]));
+        return new ResearchData(nodeID, amnt, mode, uuid);
+    }
 }

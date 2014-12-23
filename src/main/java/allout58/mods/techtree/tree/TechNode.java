@@ -198,7 +198,7 @@ public class TechNode implements Comparable<TechNode>
             for (ResearchData d : ResearchData.getSidedResearch().getAllData())
                 if (d.getNodeID() == parent.getId())
                     shouldAdv &= d.getMode() == NodeMode.Completed;
-        return shouldAdv ? NodeMode.next(previous) : previous;
+        return shouldAdv ? NodeMode.Unlocked : previous;
     }
 
     @Override
