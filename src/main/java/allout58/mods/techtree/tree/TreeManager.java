@@ -24,9 +24,99 @@
 
 package allout58.mods.techtree.tree;
 
+import allout58.mods.techtree.util.LogHelper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+
 /**
  * Created by James Hollowell on 12/22/2014.
  */
 public class TreeManager
 {
+    private static TreeManager INSTANCE;
+    private TechTree currentTree;
+
+    public static TreeManager instance()
+    {
+        if (INSTANCE == null)
+            INSTANCE = new TreeManager();
+        return INSTANCE;
+    }
+
+    public TechTree getTree()
+    {
+        return currentTree;
+    }
+
+    public void readTree(String fileName)
+    {
+        File file = new File(fileName);
+        if (!file.exists()) return;
+
+        try
+        {
+            Reader reader = new FileReader(file);
+            makeFromReader(reader);
+            reader.close();
+        }
+        catch (IOException e)
+        {
+            LogHelper.logger.error("Error reading tree from file " + file, e);
+        }
+    }
+
+    public void readFromString(String jsonTree)
+    {
+        StringReader reader = new StringReader(jsonTree);
+        makeFromReader(reader);
+        reader.close();
+    }
+
+    public String getTreeAsString()
+    {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(TechNode.class, new TechNodeGSON());
+        Gson gson = gsonBuilder.create();
+
+        TechNode[] nodes = (TechNode[]) currentTree.getNodes().toArray();
+        return gson.toJson(nodes, TechNode[].class);
+    }
+
+    public void makeFromReader(Reader reader)
+    {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(TechNode.class, new TechNodeGSON());
+        Gson gson = gsonBuilder.create();
+
+        TechNode[] nodes = gson.fromJson(reader, TechNode[].class);
+        TechNode head = null;
+
+        for (TechNode node : nodes)
+        {
+            if (node.getParentID().size() == 0)
+            {
+                head = node;
+            }
+            else
+            {
+                TechNode child = node;
+                for (int parentID : child.getParentID())
+                {
+                    if (parentID == child.getId())
+                        throw new RuntimeException("Tree node with a self-referencing parent: " + parentID);
+                    TechNode parent = nodes[parentID];
+                    child.addParentNode(parent);
+                    parent.addChildNode(child);
+                }
+            }
+        }
+        currentTree = new TechTree(head);
+    }
 }
+

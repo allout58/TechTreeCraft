@@ -24,10 +24,10 @@
 
 package allout58.mods.techtree.research;
 
-import allout58.mods.techtree.TechTreeMod;
 import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.NodeMode;
 import allout58.mods.techtree.tree.TechNode;
+import allout58.mods.techtree.tree.TreeManager;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -52,7 +52,7 @@ public class ResearchClient implements IResearchHolder
     public ResearchClient(String clientID)
     {
         this.clientID = clientID;
-        for (TechNode node : TechTreeMod.tree.getNodes())
+        for (TechNode node : TreeManager.instance().getTree().getNodes())
         {
             if (node instanceof FakeNode) continue;
             setResearch(node.getId(), 0);
@@ -117,10 +117,10 @@ public class ResearchClient implements IResearchHolder
     {
         for (ResearchData d : researchList.values())
         {
-            System.out.println(String.format("Client-side -- ID: %d, Science: %d/%d, Mode: %s", d.getNodeID(), d.getResearchAmount(), TechTreeMod.tree.getNodeByID(d.getNodeID()).getScienceRequired(), d.getMode().name()));
+            System.out.println(String.format("Client-side -- ID: %d, Science: %d/%d, Mode: %s", d.getNodeID(), d.getResearchAmount(), TreeManager.instance().getTree().getNodeByID(d.getNodeID()).getScienceRequired(), d.getMode().name()));
         }
         researchList.clear();
-        for (TechNode node : TechTreeMod.tree.getNodes())
+        for (TechNode node : TreeManager.instance().getTree().getNodes())
         {
             if (node instanceof FakeNode) continue;
             setResearch(node.getId(), 0);

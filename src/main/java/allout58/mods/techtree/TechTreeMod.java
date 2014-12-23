@@ -32,9 +32,7 @@ import allout58.mods.techtree.lib.ModInfo;
 import allout58.mods.techtree.network.NetworkManager;
 import allout58.mods.techtree.proxy.ISidedProxy;
 import allout58.mods.techtree.research.ResearchServer;
-import allout58.mods.techtree.tree.TechNode;
-import allout58.mods.techtree.tree.TechTree;
-import allout58.mods.techtree.tree.TreeLoader;
+import allout58.mods.techtree.tree.TreeManager;
 import allout58.mods.techtree.util.LogHelper;
 import allout58.mods.techtree.util.VersionChecker;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -56,8 +54,6 @@ import net.minecraftforge.common.MinecraftForge;
 public class TechTreeMod
 {
     public static String version = "@VERSION@";
-    public static TechNode node;
-    public static TechTree tree;
 
     @SidedProxy(clientSide = "allout58.mods.techtree.proxy.ClientProxy", serverSide = "allout58.mods.techtree.proxy.ServerProxy")
     public static ISidedProxy proxy;
@@ -85,8 +81,7 @@ public class TechTreeMod
         LogHelper.logger.info(LogHelper.PREINIT, "TechTree " + version + " pre-initializing");
         NetworkManager.init();
         //VersionChecker.execute();
-        node = TreeLoader.readTree("./tree.json");
-        tree = new TechTree(node);
+        TreeManager.instance().readTree("./tree.json");
 
         /*--------------- Register Events ---------------- */
         MinecraftForge.EVENT_BUS.register(VersionChecker.instance);

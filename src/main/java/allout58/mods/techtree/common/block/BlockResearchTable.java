@@ -26,6 +26,7 @@ package allout58.mods.techtree.common.block;
 
 import allout58.mods.techtree.TechTreeMod;
 import allout58.mods.techtree.client.GuiTree;
+import allout58.mods.techtree.tree.TreeManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -53,7 +54,7 @@ public class BlockResearchTable extends Block
         {
             if (world.isRemote)
             {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiTree(TechTreeMod.tree, entityPlayer.getUniqueID()));
+                Minecraft.getMinecraft().displayGuiScreen(new GuiTree(TreeManager.instance().getTree(), entityPlayer.getUniqueID()));
             }
 
             return true;

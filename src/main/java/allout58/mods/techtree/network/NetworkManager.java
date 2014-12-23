@@ -29,6 +29,7 @@ import allout58.mods.techtree.network.message.ChangeNodeMode;
 import allout58.mods.techtree.network.message.RequestMode;
 import allout58.mods.techtree.network.message.RequestResearch;
 import allout58.mods.techtree.network.message.SendResearch;
+import allout58.mods.techtree.network.message.SendTree;
 import allout58.mods.techtree.network.message.UpdateNodeMode;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -52,5 +53,7 @@ public class NetworkManager
         INSTANCE.registerMessage(UpdateNodeMode.Handler.class, UpdateNodeMode.class, discriminator++, Side.CLIENT);
 
         INSTANCE.registerMessage(ChangeNodeMode.Handler.class, ChangeNodeMode.class, discriminator++, Side.SERVER);
+
+        INSTANCE.registerMessage(SendTree.Handler.class, SendTree.class, discriminator++, Side.CLIENT);
     }
 }

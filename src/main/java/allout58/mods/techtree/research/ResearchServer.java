@@ -24,11 +24,11 @@
 
 package allout58.mods.techtree.research;
 
-import allout58.mods.techtree.TechTreeMod;
 import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.NodeMode;
 import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
+import allout58.mods.techtree.tree.TreeManager;
 import allout58.mods.techtree.util.LogHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.storage.SaveHandler;
@@ -76,7 +76,7 @@ public class ResearchServer implements IResearchHolder
             data.put(uuid, new HashMap<Integer, ResearchData>());
 
         //FIXME: Find a different way to access the tree
-        TechTree tree = TechTreeMod.tree;
+        TechTree tree = TreeManager.instance().getTree();
         TechNode node = tree.getNodeByID(nodeID);
         if (value >= node.getScienceRequired())
             value = node.getScienceRequired();
@@ -114,7 +114,7 @@ public class ResearchServer implements IResearchHolder
         for (ResearchData d : getAllData())
         {
             //FIXME: Find a different way to access the tree
-            TechTree tree = TechTreeMod.tree;
+            TechTree tree = TreeManager.instance().getTree();
             TechNode node = tree.getNodeByID(d.getNodeID());
             if (d.getResearchAmount() == node.getScienceRequired())
             {
@@ -239,7 +239,7 @@ public class ResearchServer implements IResearchHolder
             data.put(uuid, new HashMap<Integer, ResearchData>());
 
             //Fill all with 0
-            for (TechNode node : TechTreeMod.tree.getNodes())
+            for (TechNode node : TreeManager.instance().getTree().getNodes())
                 if (!(node instanceof FakeNode))
                     setResearch(uuid, node.getId(), 0);
         }
