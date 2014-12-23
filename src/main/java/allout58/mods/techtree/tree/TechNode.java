@@ -25,6 +25,9 @@
 package allout58.mods.techtree.tree;
 
 import allout58.mods.techtree.research.ResearchData;
+import allout58.mods.techtree.research.ResearchServer;
+import allout58.mods.techtree.util.LogHelper;
+import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
@@ -190,12 +193,15 @@ public class TechNode implements Comparable<TechNode>
      * @param previous The previous state of this node
      * @return The new state of this node
      */
-    public NodeMode onParentUpdate(NodeMode previous)
+    public NodeMode onParentUpdate(NodeMode previous, String uuid)
     {
-        //FIXME THIS WILL BREAK WITH MORE THAN ONE PLAYER!!!!
+        if (FMLCommonHandler.instance().getEffectiveSide().isClient())
+        {
+            LogHelper.logger.error("Tried to update the mode of a node on the client!", new Exception());
+        }
         boolean shouldAdv = true;
         for (TechNode parent : parents)
-            for (ResearchData d : ResearchData.getSidedResearch().getAllData())
+            for (ResearchData d : ResearchServer.getInstance().getClientData(uuid))
                 if (d.getNodeID() == parent.getId())
                     shouldAdv &= d.getMode() == NodeMode.Completed;
         return shouldAdv ? NodeMode.Unlocked : previous;

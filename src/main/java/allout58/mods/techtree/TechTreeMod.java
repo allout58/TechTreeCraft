@@ -78,7 +78,6 @@ public class TechTreeMod
     public void pre(FMLPreInitializationEvent event)
     {
         //Todo: Ensure tree on client and server is the same
-        //Todo: Make it work for other players, not just my uuid ;)
         //Todo: Test multiplayer and true client-server.
         //Todo: Find a better way to manage access to the tree data.
 
@@ -108,14 +107,12 @@ public class TechTreeMod
     {
         event.registerServerCommand(new ResearchCommand());
         ResearchServer.getInstance().load();
-        //Todo: load tree(s) and the research progress from disk
     }
 
     @Mod.EventHandler
     public void serverUnload(FMLServerStoppingEvent event)
     {
         ResearchServer.getInstance().save();
-        //Todo: save the research progress to disk
     }
 
     static

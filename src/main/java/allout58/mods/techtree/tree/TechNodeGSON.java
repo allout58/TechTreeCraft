@@ -41,7 +41,7 @@ import java.lang.reflect.Type;
 /**
  * Created by James Hollowell on 12/7/2014.
  */
-//TODO This has to be registered with the GsonBuilder
+//This has to be registered with the GsonBuilder
 //EXAMPLE:     gsonBuilder.registerTypeAdapter(TechNode.class, new TechNodeGSON());
 
 public class TechNodeGSON

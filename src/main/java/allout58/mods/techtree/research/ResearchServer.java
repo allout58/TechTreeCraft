@@ -72,7 +72,6 @@ public class ResearchServer implements IResearchHolder
 
     public void setResearch(String uuid, int nodeID, int value)
     {
-        //Todo: Ensure `value` is less than or equal to the science required for the node
         if (data.get(uuid) == null)
             data.put(uuid, new HashMap<Integer, ResearchData>());
 
@@ -97,7 +96,7 @@ public class ResearchServer implements IResearchHolder
                     TechNode child = node.getChildren().get(i);
                     while (child instanceof FakeNode)
                         child = child.getChildren().get(0);
-                    setMode(uuid, child.getId(), child.onParentUpdate(getMode(uuid, child.getId())));
+                    setMode(uuid, child.getId(), child.onParentUpdate(getMode(uuid, child.getId()), uuid));
                 }
                 data.get(uuid).get(nodeID).forceUpdate();
             }
@@ -125,7 +124,7 @@ public class ResearchServer implements IResearchHolder
                     TechNode child = node.getChildren().get(i);
                     while (child instanceof FakeNode)
                         child = child.getChildren().get(0);
-                    setMode(d.getUuid(), child.getId(), child.onParentUpdate(getMode(d.getUuid(), child.getId())));
+                    setMode(d.getUuid(), child.getId(), child.onParentUpdate(getMode(d.getUuid(), child.getId()), d.getUuid()));
                 }
             }
         }

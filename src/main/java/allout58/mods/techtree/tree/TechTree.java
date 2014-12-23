@@ -102,32 +102,34 @@ public class TechTree
     {
         //TODO Handle more than one depth difference between parents and children
         List<TechNode> toAdd = new ArrayList<TechNode>();
-        for (TechNode node : nodes)
+        do
         {
-            for (int i = 0; i < node.getParents().size(); i++)
+            for (TechNode node : nodes)
             {
-                TechNode parent = node.getParents().get(i);
-                if (parent.getDepth() != node.getDepth() - 1)
+                for (int i = 0; i < node.getParents().size(); i++)
                 {
-                    TechNode ne = new FakeNode(parent, node, TechNode.NEXT_ID++);
+                    TechNode parent = node.getParents().get(i);
+                    if (parent.getDepth() != node.getDepth() - 1)
+                    {
+                        TechNode ne = new FakeNode(parent, node, TechNode.NEXT_ID++);
 
-                    ne.setDepth(node.getDepth() - 1);
-                    list.get(ne.getDepth() - 1).add(ne);
-                    toAdd.add(ne);
+                        ne.setDepth(node.getDepth() - 1);
+                        list.get(ne.getDepth() - 1).add(ne);
+                        toAdd.add(ne);
 
-                    node.getParents().remove(parent);
-                    node.getParents().add(ne);
+                        node.getParents().remove(parent);
+                        node.getParents().add(ne);
 
-                    node.getParentID().remove(parent.getId());
-                    node.getParentID().add(ne.getId());
+                        node.getParentID().remove(parent.getId());
+                        node.getParentID().add(ne.getId());
 
-                    parent.getChildren().remove(node);
-                    parent.getChildren().add(ne);
+                        parent.getChildren().remove(node);
+                        parent.getChildren().add(ne);
+                    }
                 }
             }
-        }
-
-        nodes.addAll(toAdd);
+            nodes.addAll(toAdd);
+        } while (toAdd.size() > 0);
     }
 
     public int getDepth()
