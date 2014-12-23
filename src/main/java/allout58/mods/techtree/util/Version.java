@@ -24,8 +24,6 @@
 
 package allout58.mods.techtree.util;
 
-import com.sun.istack.internal.NotNull;
-
 /**
  * Created by James Hollowell on 12/5/2014.
  */
@@ -91,7 +89,7 @@ public class Version implements Comparable<Version>
     }
 
     @Override
-    public int compareTo(@NotNull Version o)
+    public int compareTo(Version o)
     {
         final int before = -1;
         final int equal = 0;
