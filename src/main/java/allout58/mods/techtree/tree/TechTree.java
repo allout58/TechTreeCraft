@@ -129,6 +129,7 @@ public class TechTree
                 }
             }
             nodes.addAll(toAdd);
+            toAdd.clear();
         } while (toAdd.size() > 0);
     }
 
@@ -150,6 +151,17 @@ public class TechTree
     public Set<TechNode> getNodes()
     {
         return nodes;
+    }
+
+    public Set<TechNode> getRealNodes()
+    {
+        Set<TechNode> out = new TreeSet<TechNode>();
+        for (TechNode n : nodes)
+        {
+            if (n instanceof FakeNode) continue;
+            out.add(n);
+        }
+        return out;
     }
 
     public TechNode getNodeByID(int id)

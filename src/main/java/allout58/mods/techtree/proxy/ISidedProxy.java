@@ -24,10 +24,14 @@
 
 package allout58.mods.techtree.proxy;
 
+import net.minecraft.entity.player.EntityPlayer;
+
 /**
  * Created by James Hollowell on 12/5/2014.
  */
 public interface ISidedProxy
 {
     void registerRenderers();
+
+    void openGui(int id, EntityPlayer player);
 }

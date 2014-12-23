@@ -25,15 +25,16 @@
 package allout58.mods.techtree.handler;
 
 import allout58.mods.techtree.network.NetworkManager;
-import allout58.mods.techtree.network.message.SendResearch;
-import allout58.mods.techtree.network.message.UpdateNodeMode;
+import allout58.mods.techtree.network.message.SendTree;
 import allout58.mods.techtree.research.ResearchClient;
-import allout58.mods.techtree.research.ResearchData;
 import allout58.mods.techtree.research.ResearchServer;
+import allout58.mods.techtree.tree.TreeManager;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 
@@ -50,6 +51,8 @@ public class PlayerHandler
         String uuid = event.player.getUniqueID().toString();
         assert event.player instanceof EntityPlayerMP;
 
+        NetworkManager.INSTANCE.sendTo(new SendTree(TreeManager.instance().getTreeAsString()), (EntityPlayerMP) event.player);
+
         ResearchServer.getInstance().makePlayerData(uuid);
         try
         {
@@ -60,14 +63,10 @@ public class PlayerHandler
             e.printStackTrace();
         }
 
-        for (ResearchData d : ResearchServer.getInstance().getClientData(uuid))
-        {
-            NetworkManager.INSTANCE.sendTo(new SendResearch(d.getNodeID(), d.getResearchAmount(), uuid), (EntityPlayerMP) event.player);
-            NetworkManager.INSTANCE.sendTo(new UpdateNodeMode(uuid, d.getNodeID(), d.getMode()), (EntityPlayerMP) event.player);
-        }
     }
 
     @SubscribeEvent
+    @SideOnly(Side.CLIENT)
     public void onLeaveClient(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
     {
         //Clear the client cache to prepare for different server/world
@@ -75,6 +74,7 @@ public class PlayerHandler
     }
 
     @SubscribeEvent
+    @SideOnly(Side.CLIENT)
     public void onJoinClient(FMLNetworkEvent.ClientConnectedToServerEvent event)
     {
         EntityPlayer player = FMLClientHandler.instance().getClient().thePlayer;

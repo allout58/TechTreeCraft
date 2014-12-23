@@ -34,6 +34,8 @@ import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
 import allout58.mods.techtree.util.RenderingHelper;
 import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -50,6 +52,7 @@ import java.util.UUID;
 /**
  * Created by James Hollowell on 12/7/2014.
  */
+@SideOnly(Side.CLIENT)
 public class GuiTree extends GuiScreen
 {
     public static final int WIDTH = 300;

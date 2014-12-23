@@ -24,50 +24,60 @@
 
 package allout58.mods.techtree.network.message;
 
-import allout58.mods.techtree.tree.TreeManager;
-import cpw.mods.fml.client.FMLClientHandler;
+import allout58.mods.techtree.network.NetworkManager;
+import allout58.mods.techtree.research.ResearchData;
+import allout58.mods.techtree.research.ResearchServer;
+import allout58.mods.techtree.util.PlayerHelper;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.entity.player.EntityPlayerMP;
 
 /**
  * Created by James Hollowell on 12/23/2014.
  */
-public class SendTree implements IMessage
+public class RequestAll implements IMessage
 {
-    String tree = "";
+    String uuid = "";
 
-    public SendTree()
+    public RequestAll(String uuid)
     {
+        this.uuid = uuid;
     }
 
-    public SendTree(String tree)
+    public RequestAll()
     {
-        this.tree = tree;
+
     }
 
     @Override
     public void fromBytes(ByteBuf buf)
     {
-        tree = ByteBufUtils.readUTF8String(buf);
+        uuid = ByteBufUtils.readUTF8String(buf);
     }
 
     @Override
     public void toBytes(ByteBuf buf)
     {
-        ByteBufUtils.writeUTF8String(buf, tree);
+        ByteBufUtils.writeUTF8String(buf, uuid);
     }
 
-    public static class Handler implements IMessageHandler<SendTree, RequestAll>
+    public static class Handler implements IMessageHandler<RequestAll, IMessage>
     {
 
         @Override
-        public RequestAll onMessage(SendTree message, MessageContext ctx)
+        public IMessage onMessage(RequestAll message, MessageContext ctx)
         {
-            TreeManager.instance().readFromString(message.tree);
-            return new RequestAll(FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString());
+            EntityPlayerMP player = PlayerHelper.getPlayerFromUUID(message.uuid, FMLCommonHandler.instance().getMinecraftServerInstance());
+            for (ResearchData d : ResearchServer.getInstance().getClientData(message.uuid))
+            {
+                NetworkManager.INSTANCE.sendTo(new SendResearch(d.getNodeID(), d.getResearchAmount(), message.uuid), player);
+                NetworkManager.INSTANCE.sendTo(new UpdateNodeMode(message.uuid, d.getNodeID(), d.getMode()), player);
+            }
+            return null;
         }
     }
 }

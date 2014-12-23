@@ -28,6 +28,7 @@ import allout58.mods.techtree.util.LogHelper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -41,6 +42,7 @@ public class TreeManager
 {
     private static TreeManager INSTANCE;
     private TechTree currentTree;
+    private String treeString = "";
 
     public static TreeManager instance()
     {
@@ -64,6 +66,14 @@ public class TreeManager
             Reader reader = new FileReader(file);
             makeFromReader(reader);
             reader.close();
+
+            reader = new FileReader(file);
+            BufferedReader br = new BufferedReader(reader);
+            String line;
+            while ((line = br.readLine()) != null)
+            {
+                treeString += line;
+            }
         }
         catch (IOException e)
         {
@@ -80,12 +90,14 @@ public class TreeManager
 
     public String getTreeAsString()
     {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(TechNode.class, new TechNodeGSON());
-        Gson gson = gsonBuilder.create();
 
-        TechNode[] nodes = (TechNode[]) currentTree.getNodes().toArray();
-        return gson.toJson(nodes, TechNode[].class);
+        //        GsonBuilder gsonBuilder = new GsonBuilder();
+        //        gsonBuilder.registerTypeAdapter(TechNode.class, new TechNodeGSON());
+        //        Gson gson = gsonBuilder.create();
+        //
+        //        TechNode[] nodes = currentTree.getRealNodes().toArray(new TechNode[currentTree.getNodes().size()]);
+        //        return gson.toJson(nodes);
+        return treeString;
     }
 
     public void makeFromReader(Reader reader)

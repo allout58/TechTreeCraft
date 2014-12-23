@@ -24,6 +24,11 @@
 
 package allout58.mods.techtree.proxy;
 
+import allout58.mods.techtree.client.GuiTree;
+import allout58.mods.techtree.tree.TreeManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+
 /**
  * Created by James Hollowell on 12/5/2014.
  */
@@ -33,4 +38,15 @@ public class ClientProxy implements ISidedProxy
     {
 
     }
+
+    @Override
+    public void openGui(int id, EntityPlayer player)
+    {
+        switch (id)
+        {
+            case 0:
+                Minecraft.getMinecraft().displayGuiScreen(new GuiTree(TreeManager.instance().getTree(), player.getUniqueID()));
+        }
+    }
+
 }

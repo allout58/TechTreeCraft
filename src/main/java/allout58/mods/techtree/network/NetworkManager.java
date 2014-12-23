@@ -26,6 +26,7 @@ package allout58.mods.techtree.network;
 
 import allout58.mods.techtree.lib.ModInfo;
 import allout58.mods.techtree.network.message.ChangeNodeMode;
+import allout58.mods.techtree.network.message.RequestAll;
 import allout58.mods.techtree.network.message.RequestMode;
 import allout58.mods.techtree.network.message.RequestResearch;
 import allout58.mods.techtree.network.message.SendResearch;
@@ -55,5 +56,6 @@ public class NetworkManager
         INSTANCE.registerMessage(ChangeNodeMode.Handler.class, ChangeNodeMode.class, discriminator++, Side.SERVER);
 
         INSTANCE.registerMessage(SendTree.Handler.class, SendTree.class, discriminator++, Side.CLIENT);
+        INSTANCE.registerMessage(RequestAll.Handler.class, RequestAll.class, discriminator++, Side.SERVER);
     }
 }
