@@ -75,7 +75,6 @@ public class ResearchServer implements IResearchHolder
         if (data.get(uuid) == null)
             data.put(uuid, new HashMap<Integer, ResearchData>());
 
-        //FIXME: Find a different way to access the tree
         TechTree tree = TreeManager.instance().getTree();
         TechNode node = tree.getNodeByID(nodeID);
         if (value >= node.getScienceRequired())
@@ -113,7 +112,6 @@ public class ResearchServer implements IResearchHolder
     {
         for (ResearchData d : getAllData())
         {
-            //FIXME: Find a different way to access the tree
             TechTree tree = TreeManager.instance().getTree();
             TechNode node = tree.getNodeByID(d.getNodeID());
             if (d.getResearchAmount() == node.getScienceRequired())

@@ -73,9 +73,7 @@ public class TechTreeMod
     @Mod.EventHandler
     public void pre(FMLPreInitializationEvent event)
     {
-        //Todo: Ensure tree on client and server is the same
         //Todo: Test multiplayer and true client-server.
-        //Todo: Find a better way to manage access to the tree data.
 
         LogHelper.init(event.getModLog());
         LogHelper.logger.info(LogHelper.PREINIT, "TechTree " + version + " pre-initializing");

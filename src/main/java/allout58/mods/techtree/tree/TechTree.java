@@ -98,9 +98,35 @@ public class TechTree
             maxWidth = Math.max(maxWidth, node.getChildren().size());
     }
 
+    private void undoFakeNodes()
+    {
+        //Todo Test this method ;)
+        List<TechNode> toRemove = new ArrayList<TechNode>();
+        for (TechNode node : nodes)
+        {
+            if (node instanceof FakeNode)
+            {
+                toRemove.add(node);
+                list.get(node.getDepth()).remove(node);
+
+                TechNode parent = node.getParents().get(0);
+                TechNode child = node.getChildren().get(0);
+
+                parent.getChildren().remove(node);
+                parent.getChildren().add(child);
+
+                child.getParents().remove(node);
+                child.getParents().add(parent);
+
+                child.getParentID().remove((Integer) node.getId());
+                child.getParentID().add(parent.getId());
+            }
+        }
+    }
+
     private void doFakeNodes()
     {
-        //TODO Handle more than one depth difference between parents and children
+        //TODO TEST: Handle more than one depth difference between parents and children
         List<TechNode> toAdd = new ArrayList<TechNode>();
         do
         {
