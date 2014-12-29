@@ -27,6 +27,7 @@ package allout58.mods.techtree.tree;
 import allout58.mods.techtree.lib.ModInfo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraft.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -112,6 +113,7 @@ public class TreeManager
     {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(TechNode.class, new TechNodeGSON());
+        gsonBuilder.registerTypeAdapter(ItemStack.class, new ItemStackGSON());
         Gson gson = gsonBuilder.create();
 
         TechNode[] nodes = gson.fromJson(reader, TechNode[].class);
@@ -125,14 +127,13 @@ public class TreeManager
             }
             else
             {
-                TechNode child = node;
-                for (int parentID : child.getParentID())
+                for (int parentID : node.getParentID())
                 {
-                    if (parentID == child.getId())
+                    if (parentID == node.getId())
                         throw new RuntimeException("Tree node with a self-referencing parent: " + parentID);
                     TechNode parent = nodes[parentID];
-                    child.addParentNode(parent);
-                    parent.addChildNode(child);
+                    node.addParentNode(parent);
+                    parent.addChildNode(node);
                 }
             }
         }

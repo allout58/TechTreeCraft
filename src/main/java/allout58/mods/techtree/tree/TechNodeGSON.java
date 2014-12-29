@@ -33,7 +33,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
 import java.lang.reflect.Type;
@@ -56,9 +55,10 @@ public class TechNodeGSON
         final String name = obj.get("name").getAsString();
         final int science = obj.get("scienceRequired").getAsInt();
         final String description = obj.get("description").getAsString();
+        final ItemStack[] items = context.deserialize(obj.get("lockedItems"), ItemStack[].class);
 
         final TechNode node = new TechNode(id);
-        ItemStack[] items = new ItemStack[] { new ItemStack(Items.apple), new ItemStack(Items.arrow), new ItemStack(Items.bow) };
+        //        ItemStack[] items = new ItemStack[] { new ItemStack(Items.apple), new ItemStack(Items.arrow), new ItemStack(Items.bow) };
         node.setup(name, science, description, items);
 
         final JsonArray jsonParentArray = obj.getAsJsonArray("parents");
@@ -87,6 +87,14 @@ public class TechNodeGSON
         }
 
         jsonObject.add("parents", jsonParents);
+
+        final JsonArray jsonItems = new JsonArray();
+        for (final ItemStack item : src.getLockedItems())
+        {
+            jsonItems.add(context.serialize(item));
+        }
+
+        jsonObject.add("lockedItems", jsonItems);
 
         return jsonObject;
     }
