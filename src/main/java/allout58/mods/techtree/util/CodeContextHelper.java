@@ -22,52 +22,45 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.network.message;
+package allout58.mods.techtree.util;
 
-import allout58.mods.techtree.research.ResearchServer;
-import cpw.mods.fml.common.network.ByteBufUtils;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import io.netty.buffer.ByteBuf;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by James Hollowell on 12/23/2014.
+ * Created by James Hollowell on 12/27/2014.
  */
-public class RequestAll implements IMessage
+public class CodeContextHelper
 {
-    String uuid = "";
+    private static CodeContextHelper instance;
 
-    public RequestAll(String uuid)
+    private List<String> registerServer = new ArrayList<String>();
+
+    public static CodeContextHelper getInstance()
     {
-        this.uuid = uuid;
+        if (instance == null)
+            instance = new CodeContextHelper();
+        return instance;
     }
 
-    public RequestAll()
+    public void registerThreadAsServer(Thread thread)
     {
-
+        registerThreadAsServer(thread.getName());
     }
 
-    @Override
-    public void fromBytes(ByteBuf buf)
+    public void registerThreadAsServer(String thread)
     {
-        uuid = ByteBufUtils.readUTF8String(buf);
+        registerServer.add(thread);
     }
 
-    @Override
-    public void toBytes(ByteBuf buf)
+    public Side getEffectiveSide()
     {
-        ByteBufUtils.writeUTF8String(buf, uuid);
-    }
-
-    public static class Handler implements IMessageHandler<RequestAll, IMessage>
-    {
-
-        @Override
-        public IMessage onMessage(RequestAll message, MessageContext ctx)
-        {
-            ResearchServer.getInstance().sendAllToClient(message.uuid);
-            return null;
-        }
+        Thread cur = Thread.currentThread();
+        if (FMLCommonHandler.instance().getEffectiveSide().isServer() || registerServer.contains(cur.getName()))
+            return Side.SERVER;
+        return Side.CLIENT;
     }
 }

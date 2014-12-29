@@ -26,8 +26,8 @@ package allout58.mods.techtree.tree;
 
 import allout58.mods.techtree.research.ResearchData;
 import allout58.mods.techtree.research.ResearchServer;
+import allout58.mods.techtree.util.CodeContextHelper;
 import allout58.mods.techtree.util.LogHelper;
-import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
@@ -195,16 +195,23 @@ public class TechNode implements Comparable<TechNode>
      */
     public NodeMode onParentUpdate(NodeMode previous, String uuid)
     {
-        if (FMLCommonHandler.instance().getEffectiveSide().isClient())
+        if (CodeContextHelper.getInstance().getEffectiveSide().isClient())
         {
             LogHelper.logger.error("Tried to update the mode of a node on the client!", new Exception());
         }
-        boolean shouldAdv = true;
-        for (TechNode parent : parents)
+        int count = 0;
+        for (int i = 0; i < parents.size(); i++)
+        {
+            TechNode parent = parents.get(i);
+            while (parent instanceof FakeNode)
+                parent = parent.getParents().get(0);
             for (ResearchData d : ResearchServer.getInstance().getClientData(uuid))
-                if (d.getNodeID() == parent.getId())
-                    shouldAdv &= d.getMode() == NodeMode.Completed;
-        return shouldAdv ? NodeMode.Unlocked : previous;
+            {
+                if (d.getNodeID() == parent.getId() && d.getMode() == NodeMode.Completed)
+                    count++;
+            }
+        }
+        return count == parents.size() ? NodeMode.Unlocked : previous;
     }
 
     @Override

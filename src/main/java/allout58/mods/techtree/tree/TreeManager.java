@@ -24,12 +24,15 @@
 
 package allout58.mods.techtree.tree;
 
-import allout58.mods.techtree.util.LogHelper;
+import allout58.mods.techtree.lib.ModInfo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -40,6 +43,8 @@ import java.io.StringReader;
  */
 public class TreeManager
 {
+    private static final Logger log = LogManager.getLogger(ModInfo.MOD_ID + "-TreeManager");
+
     private static TreeManager INSTANCE;
     private TechTree currentTree;
     private String treeString = "";
@@ -58,11 +63,12 @@ public class TreeManager
 
     public void readTree(String fileName)
     {
+        log.info("Reading tree in from " + fileName);
         File file = new File(fileName);
-        if (!file.exists()) return;
-
         try
         {
+            if (!file.exists()) throw new FileNotFoundException(fileName);
+
             Reader reader = new FileReader(file);
             makeFromReader(reader);
             reader.close();
@@ -74,23 +80,25 @@ public class TreeManager
             {
                 treeString += line;
             }
+            br.close();
         }
         catch (IOException e)
         {
-            LogHelper.logger.error("Error reading tree from file " + file, e);
+            log.error("Error reading tree from file " + file, e);
         }
+        log.info("Tree read in.");
     }
 
     public void readFromString(String jsonTree)
     {
         StringReader reader = new StringReader(jsonTree);
+        log.info("Reading tree from string " + jsonTree);
         makeFromReader(reader);
         reader.close();
     }
 
     public String getTreeAsString()
     {
-
         //        GsonBuilder gsonBuilder = new GsonBuilder();
         //        gsonBuilder.registerTypeAdapter(TechNode.class, new TechNodeGSON());
         //        Gson gson = gsonBuilder.create();

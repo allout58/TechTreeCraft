@@ -46,22 +46,21 @@ public class GuiButtonTechNode extends GuiButton
     {
         super(id, x, y, width, height, "");
 
+        try
+        {
+            bar = new GuiElementProgressBar(width - 10, 5, x + 5, y + height - 8, (float) (ResearchClient.getInstance().getResearch(node.getId())) / (float) (node.getScienceRequired()), 0xFF119911, 0xFF991111);
+            bar.setVisible(true);
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+
         if (node instanceof FakeNode)
         {
             this.visible = this.enabled = false;
             this.height = 2;
-        }
-        else
-        {
-            try
-            {
-                bar = new GuiElementProgressBar(width - 10, 5, x + 5, y + height - 8, (float) (ResearchClient.getInstance().getResearch(node.getId())) / (float) (node.getScienceRequired()), 0xFF119911, 0xFF991111);
-                bar.setVisible(true);
-            }
-            catch (IllegalAccessException e)
-            {
-                e.printStackTrace();
-            }
+            bar.setVisible(false);
         }
 
         this.node = node;
@@ -95,7 +94,14 @@ public class GuiButtonTechNode extends GuiButton
                     break;
                 case Unlocked:
                     drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFFAAAAAA, 0xFF656565);
-                    bar.setEnabled(false);
+                    try
+                    {
+                        bar.setEnabled(ResearchClient.getInstance().getResearch(node.getId()) > 0);
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
                     break;
                 case Researching:
                     drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFF9999FF, 0xFF6565a5);

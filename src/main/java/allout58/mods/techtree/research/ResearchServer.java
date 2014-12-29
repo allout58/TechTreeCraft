@@ -24,14 +24,22 @@
 
 package allout58.mods.techtree.research;
 
+import allout58.mods.techtree.network.NetworkManager;
+import allout58.mods.techtree.network.message.SendResearch;
+import allout58.mods.techtree.network.message.UpdateNodeMode;
 import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.NodeMode;
 import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
 import allout58.mods.techtree.tree.TreeManager;
 import allout58.mods.techtree.util.LogHelper;
+import allout58.mods.techtree.util.PlayerHelper;
+import cpw.mods.fml.common.FMLCommonHandler;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.storage.SaveHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -53,8 +61,10 @@ public class ResearchServer implements IResearchHolder
     private static ResearchServer INSTANCE;
 
     private static final Pattern uuidPattern = Pattern.compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}");
+    private static final Logger log = LogManager.getLogger();
 
     private Map<String, HashMap<Integer, ResearchData>> data = new HashMap<String, HashMap<Integer, ResearchData>>();
+    private Map<String, Integer> rate = new HashMap<String, Integer>();
 
     public static ResearchServer getInstance()
     {
@@ -63,14 +73,27 @@ public class ResearchServer implements IResearchHolder
         return INSTANCE;
     }
 
-    public int getResearch(String uuid, int nodeID)
+    public synchronized int getResearchRate(String uuid)
+    {
+        return rate.get(uuid) == null ? 0 : rate.get(uuid);
+    }
+
+    public synchronized void setResearchRate(String uuid, int rate)
+    {
+        if (rate < 0)
+            log.error("Trying to set research value to negative!", new Exception());
+        else
+            this.rate.put(uuid, rate);
+    }
+
+    public synchronized int getResearch(String uuid, int nodeID)
     {
         if (data.get(uuid) == null)
             return -1;
         return data.get(uuid).get(nodeID).getResearchAmount();
     }
 
-    public void setResearch(String uuid, int nodeID, int value)
+    public synchronized void setResearch(String uuid, int nodeID, int value)
     {
         if (data.get(uuid) == null)
             data.put(uuid, new HashMap<Integer, ResearchData>());
@@ -114,7 +137,7 @@ public class ResearchServer implements IResearchHolder
         {
             TechTree tree = TreeManager.instance().getTree();
             TechNode node = tree.getNodeByID(d.getNodeID());
-            if (d.getResearchAmount() == node.getScienceRequired())
+            if (d.getResearchAmount() >= node.getScienceRequired())
             {
                 setMode(d.getUuid(), d.getNodeID(), NodeMode.Completed);
                 for (int i = 0; i < node.getChildren().size(); i++)
@@ -128,7 +151,7 @@ public class ResearchServer implements IResearchHolder
         }
     }
 
-    public void setMode(String uuid, int nodeID, NodeMode mode)
+    public synchronized void setMode(String uuid, int nodeID, NodeMode mode)
             throws IllegalAccessException
     {
         if (data.get(uuid) == null || data.get(uuid).get(nodeID) == null)
@@ -136,7 +159,7 @@ public class ResearchServer implements IResearchHolder
         data.get(uuid).get(nodeID).setMode(mode);
     }
 
-    public NodeMode getMode(String uuid, int nodeID)
+    public synchronized NodeMode getMode(String uuid, int nodeID)
     {
         if (data.get(uuid) == null || data.get(uuid).get(nodeID) == null)
             throw new IllegalArgumentException("Trying to change the mode of a node that doesn't exist or whose player doesn't exist: " + uuid + " " + nodeID);
@@ -157,6 +180,8 @@ public class ResearchServer implements IResearchHolder
                 {
                     currentUuid = line;
                     data.put(line, new HashMap<Integer, ResearchData>());
+                    line = br.readLine();
+                    rate.put(currentUuid, Integer.valueOf(line));
                 }
                 else
                 {
@@ -166,23 +191,27 @@ public class ResearchServer implements IResearchHolder
             }
             br.close();
         }
-        catch (IOException e)
+        catch (IOException ioe)
         {
-            LogHelper.logger.error("Error reading data file!", e);
+            log.error("Error reading data file!", ioe);
+            try
+            {
+                probeModes();
+            }
+            catch (IllegalAccessException e)
+            {
+                LogHelper.logger.error(e);
+            }
+            catch (IllegalArgumentException e)
+            {
+                LogHelper.logger.error(e);
+            }
+        }
+        catch (NumberFormatException e)
+        {
+            log.error("Error reading data file!", e);
         }
 
-        //        try
-        //        {
-        //            probeModes();
-        //        }
-        //        catch (IllegalAccessException e)
-        //        {
-        //            LogHelper.logger.error(e);
-        //        }
-        //        catch (IllegalArgumentException e)
-        //        {
-        //            LogHelper.logger.error(e);
-        //        }
     }
 
     public void save()
@@ -197,6 +226,8 @@ public class ResearchServer implements IResearchHolder
             {
                 bw.write(player.getKey());
                 bw.newLine();
+                bw.write(getResearchRate(player.getKey()) + "");
+                bw.newLine();
                 for (Map.Entry<Integer, ResearchData> dat : player.getValue().entrySet())
                 {
                     bw.write(dat.getValue().toString());
@@ -209,12 +240,10 @@ public class ResearchServer implements IResearchHolder
         {
             e.printStackTrace();
         }
-
-        data.clear();
     }
 
     @Override
-    public List<ResearchData> getAllData()
+    public synchronized List<ResearchData> getAllData()
     {
         ArrayList<ResearchData> out = new ArrayList<ResearchData>();
         for (HashMap<Integer, ResearchData> sub : data.values())
@@ -223,12 +252,12 @@ public class ResearchServer implements IResearchHolder
         return out;
     }
 
-    public List<ResearchData> getClientData(String uuid)
+    public synchronized List<ResearchData> getClientData(String uuid)
     {
         return new ArrayList<ResearchData>(data.get(uuid).values());
     }
 
-    public void makePlayerData(String uuid)
+    public synchronized void makePlayerData(String uuid)
     {
         //Make a table for a new player
         //This will not run if the player has already logged on to the server or is loaded from disk
@@ -241,11 +270,42 @@ public class ResearchServer implements IResearchHolder
                 if (!(node instanceof FakeNode))
                     setResearch(uuid, node.getId(), 0);
         }
+        if (rate.get(uuid) == null)
+            rate.put(uuid, 0);
     }
 
     private File getSaveFile()
     {
         SaveHandler saveHandler = (SaveHandler) MinecraftServer.getServer().worldServerForDimension(0).getSaveHandler();
         return new File(saveHandler.getWorldDirectory().getAbsolutePath() + "/ttm.dat");
+    }
+
+    public void clear(String uuid)
+    {
+        data.put(uuid, null);
+        makePlayerData(uuid);
+        try
+        {
+            probeModes();
+        }
+        catch (Exception e)
+        {
+            log.error("Error clearing", e);
+        }
+    }
+
+    public void clearAll()
+    {
+        data.clear();
+    }
+
+    public void sendAllToClient(String uuid)
+    {
+        EntityPlayerMP player = PlayerHelper.getPlayerFromUUID(uuid, FMLCommonHandler.instance().getMinecraftServerInstance());
+        for (ResearchData d : ResearchServer.getInstance().getClientData(uuid))
+        {
+            NetworkManager.INSTANCE.sendTo(new SendResearch(d.getNodeID(), d.getResearchAmount(), uuid), player);
+            NetworkManager.INSTANCE.sendTo(new UpdateNodeMode(uuid, d.getNodeID(), d.getMode()), player);
+        }
     }
 }

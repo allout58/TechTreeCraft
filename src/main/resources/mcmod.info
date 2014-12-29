@@ -1,8 +1,8 @@
 [
 {
-  "modid": "bigfactories",
-  "name": "Big Factories",
-  "description": "The bigger the better, right? So, why not make all your silly one-block factory machines bigger!",
+  "modid": "techtree",
+  "name": "TechTreeCraft",
+  "description": "Adds a configurable tech tree to Minecraft.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",

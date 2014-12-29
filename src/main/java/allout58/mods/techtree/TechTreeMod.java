@@ -100,12 +100,15 @@ public class TechTreeMod
     {
         event.registerServerCommand(new ResearchCommand());
         ResearchServer.getInstance().load();
+        //        TickHandler.INSTANCE.startTimer();
     }
 
     @Mod.EventHandler
     public void serverUnload(FMLServerStoppingEvent event)
     {
         ResearchServer.getInstance().save();
+        ResearchServer.getInstance().clearAll();
+        //        TickHandler.INSTANCE.stop();
     }
 
     static

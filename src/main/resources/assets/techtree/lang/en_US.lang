@@ -1,3 +1,5 @@
 itemGroup.techtree=TechTreeCraft
 
 gui.scienceRequired=Science Required: %d
+
+chat.rate=Science Rate: %d

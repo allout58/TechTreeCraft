@@ -30,6 +30,7 @@ import allout58.mods.techtree.research.ResearchClient;
 import allout58.mods.techtree.research.ResearchServer;
 import allout58.mods.techtree.tree.TreeManager;
 import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent;
@@ -51,8 +52,6 @@ public class PlayerHandler
         String uuid = event.player.getUniqueID().toString();
         assert event.player instanceof EntityPlayerMP;
 
-        NetworkManager.INSTANCE.sendTo(new SendTree(TreeManager.instance().getTreeAsString()), (EntityPlayerMP) event.player);
-
         ResearchServer.getInstance().makePlayerData(uuid);
         try
         {
@@ -63,6 +62,10 @@ public class PlayerHandler
             e.printStackTrace();
         }
 
+        if (FMLCommonHandler.instance().getMinecraftServerInstance().isDedicatedServer())
+            NetworkManager.INSTANCE.sendTo(new SendTree(TreeManager.instance().getTreeAsString()), (EntityPlayerMP) event.player);
+        else
+            ResearchServer.getInstance().sendAllToClient(event.player.getUniqueID().toString());
     }
 
     @SubscribeEvent

@@ -26,6 +26,7 @@ package allout58.mods.techtree.client;
 
 import allout58.mods.techtree.network.NetworkManager;
 import allout58.mods.techtree.network.message.ChangeNodeMode;
+import allout58.mods.techtree.network.message.RequestAll;
 import allout58.mods.techtree.network.message.RequestResearch;
 import allout58.mods.techtree.research.ResearchClient;
 import allout58.mods.techtree.tree.FakeNode;
@@ -40,7 +41,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.StatCollector;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -91,6 +91,8 @@ public class GuiTree extends GuiScreen
     public void initGui()
     {
         super.initGui();
+
+        NetworkManager.INSTANCE.sendToServer(new RequestAll(FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString()));
 
         xStart = (width - WIDTH) / 2;
 
@@ -145,6 +147,12 @@ public class GuiTree extends GuiScreen
                 ResearchClient.getInstance(playerUuid).setMode(node.getId(), mode);
                 NetworkManager.INSTANCE.sendToServer(new ChangeNodeMode(playerUuid, node.getId(), mode));
             }
+            else if (mode == NodeMode.Researching)
+            {
+                mode = NodeMode.Unlocked;
+                ResearchClient.getInstance(playerUuid).setMode(node.getId(), mode);
+                NetworkManager.INSTANCE.sendToServer(new ChangeNodeMode(playerUuid, node.getId(), mode));
+            }
         }
     }
 
@@ -171,20 +179,13 @@ public class GuiTree extends GuiScreen
         super.keyTyped(c, key);
         if (c == 'r')
         {
-            for (GuiButton btn : buttons)
-                btn.visible = !btn.visible;
+            NetworkManager.INSTANCE.sendToServer(new RequestAll(FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString()));
         }
-        if (key == Keyboard.KEY_LEFT)
+        if (c == 'f')
         {
             for (GuiButton btn : buttons)
-                if (btn.visible)
-                    ((GuiButtonTechNode) btn).bar.setMax(.1F);
-        }
-        if (key == Keyboard.KEY_RIGHT)
-        {
-            for (GuiButton btn : buttons)
-                if (btn.visible)
-                    ((GuiButtonTechNode) btn).bar.setMax(.9F);
+                if (((GuiButtonTechNode) btn).getNode() instanceof FakeNode)
+                    btn.visible = !btn.visible;
         }
     }
 
@@ -200,7 +201,6 @@ public class GuiTree extends GuiScreen
 
     private void drawTreeLines()
     {
-
         for (GuiButtonTechNode btn : buttons)
         {
             TechNode btnNode = btn.getNode();
@@ -213,7 +213,6 @@ public class GuiTree extends GuiScreen
                 RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), btn.getOutX(), btn.getOutY(), 2.5f, 0);
             }
         }
-
     }
 
     @SuppressWarnings("unchecked")

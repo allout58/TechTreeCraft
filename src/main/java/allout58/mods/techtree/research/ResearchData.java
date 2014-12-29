@@ -28,6 +28,7 @@ import allout58.mods.techtree.network.NetworkManager;
 import allout58.mods.techtree.network.message.SendResearch;
 import allout58.mods.techtree.network.message.UpdateNodeMode;
 import allout58.mods.techtree.tree.NodeMode;
+import allout58.mods.techtree.util.CodeContextHelper;
 import allout58.mods.techtree.util.PlayerHelper;
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -73,7 +74,7 @@ public class ResearchData
     public void setResearchAmount(int researchAmount)
     {
         this.researchAmount = researchAmount;
-        if (FMLCommonHandler.instance().getEffectiveSide().isServer() && researchAmount % 10 == 0)
+        if (CodeContextHelper.getInstance().getEffectiveSide().isServer())
         {
             EntityPlayerMP player = PlayerHelper.getPlayerFromUUID(getUuid(), FMLCommonHandler.instance().getMinecraftServerInstance());
             if (player != null)
@@ -84,7 +85,7 @@ public class ResearchData
     public void setMode(NodeMode mode)
     {
         this.mode = mode;
-        if (FMLCommonHandler.instance().getEffectiveSide().isServer())
+        if (CodeContextHelper.getInstance().getEffectiveSide().isServer())
         {
             EntityPlayerMP player = PlayerHelper.getPlayerFromUUID(getUuid(), FMLCommonHandler.instance().getMinecraftServerInstance());
             if (player != null)
@@ -94,7 +95,7 @@ public class ResearchData
 
     public void forceUpdate()
     {
-        if (FMLCommonHandler.instance().getEffectiveSide().isServer())
+        if (CodeContextHelper.getInstance().getEffectiveSide().isServer())
         {
             EntityPlayerMP player = PlayerHelper.getPlayerFromUUID(getUuid(), FMLCommonHandler.instance().getMinecraftServerInstance());
             if (player != null)
@@ -109,7 +110,7 @@ public class ResearchData
     {
         try
         {
-            if (FMLCommonHandler.instance().getEffectiveSide().isClient())
+            if (CodeContextHelper.getInstance().getEffectiveSide().isClient())
                 return ResearchClient.getInstance();
             else
                 return ResearchServer.getInstance();

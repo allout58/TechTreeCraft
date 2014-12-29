@@ -24,6 +24,7 @@
 
 package allout58.mods.techtree.tree;
 
+import allout58.mods.techtree.research.ResearchServer;
 import net.minecraft.item.ItemStack;
 
 /**
@@ -38,5 +39,12 @@ public class FakeNode extends TechNode
         addParentNode(parent);
         addChildNode(child);
         setup("FakeNode" + id, -1, "What description?", new ItemStack[] { });
+    }
+
+    @Override
+    public NodeMode onParentUpdate(NodeMode previous, String uuid)
+    {
+        //I. AM. PARENT.
+        return ResearchServer.getInstance().getMode(uuid, parents.get(0).getId());
     }
 }

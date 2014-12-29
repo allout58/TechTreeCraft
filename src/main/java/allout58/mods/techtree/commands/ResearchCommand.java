@@ -29,8 +29,10 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentText;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -58,7 +60,10 @@ public class ResearchCommand extends CommandBase
     @Override
     public String getCommandUsage(ICommandSender var1)
     {
-        String use = "/research set <user> <nodeID> <amount>";
+        String use = "/research getRate <player> |";
+        use += "/research clear <player> |";
+        use += "/research save |";
+        use += "/research load";
         return use;
     }
 
@@ -74,12 +79,29 @@ public class ResearchCommand extends CommandBase
     {
         if (astring.length == 0 || "help".equalsIgnoreCase(astring[0]))
             throw new WrongUsageException(getCommandUsage(commandSender));
-        if ("set".equalsIgnoreCase(astring[0]))
+        if ("getRate".equalsIgnoreCase(astring[0]))
         {
-            if (astring.length != 4)
+            if (astring.length != 2)
                 throw new WrongUsageException(getCommandUsage(commandSender));
-            ResearchServer.getInstance().setResearch(CommandBase.getPlayer(commandSender, astring[1]).getUniqueID().toString(), Integer.getInteger(astring[2]), Integer.getInteger(astring[3]));
+            commandSender.addChatMessage(new ChatComponentText(ResearchServer.getInstance().getResearchRate(CommandBase.getPlayer(commandSender, astring[1]).getUniqueID().toString()) + "")); //ranslation("chat.rate",
             //commandSender.addChatMessage(new ChatComponentTranslation("chat.ctprefix").appendSibling(new ChatComponentTranslation("chat.getXP", astring[1], HarvestXPServer.INSTANCE.GetXPForUser(astring[1]))));
+        }
+        else if ("clear".equalsIgnoreCase(astring[0]))
+        {
+            if (astring.length != 2)
+                throw new WrongUsageException(getCommandUsage(commandSender));
+            ResearchServer.getInstance().clear(CommandBase.getPlayer(commandSender, astring[1]).getUniqueID().toString());
+            commandSender.addChatMessage(new ChatComponentText("Research cleared"));
+        }
+        else if ("save".equalsIgnoreCase(astring[0]))
+        {
+            ResearchServer.getInstance().save();
+            commandSender.addChatMessage(new ChatComponentText("Research saved to disk"));
+        }
+        else if ("reload".equalsIgnoreCase(astring[0]))
+        {
+            ResearchServer.getInstance().load();
+            commandSender.addChatMessage(new ChatComponentText("Research reloaded from disk"));
         }
     }
 
@@ -89,16 +111,28 @@ public class ResearchCommand extends CommandBase
     {
         final List<String> matches = new LinkedList<String>();
         final String argLc = astring[astring.length - 1].toLowerCase();
+        final List<String> player2 = Arrays.asList("getRate", "clear");
+
         if (astring.length == 1)
+
         {
-            if ("set".toLowerCase().startsWith(argLc)) matches.add("set");
+            if ("getRate".toLowerCase().startsWith(argLc))
+                matches.add("getRate");
+            if ("clear".toLowerCase().startsWith(argLc))
+                matches.add("clear");
+            if ("save".toLowerCase().startsWith(argLc))
+                matches.add("save");
+            if ("reload".toLowerCase().startsWith(argLc))
+                matches.add("reload");
             //if ("setXP".toLowerCase().startsWith(argLc)) matches.add("setXP");
         }
-        else if (astring.length == 2)
+
+        else if (astring.length == 2 && player2.contains(astring[0]))
         {
             for (String un : MinecraftServer.getServer().getAllUsernames())
                 if (un.toLowerCase().startsWith(argLc)) matches.add(un);
         }
+
         return matches.isEmpty() ? null : matches;
     }
 }
