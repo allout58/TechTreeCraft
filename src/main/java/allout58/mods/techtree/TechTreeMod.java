@@ -29,6 +29,7 @@ import allout58.mods.techtree.common.block.BlockRegistry;
 import allout58.mods.techtree.handler.PlayerHandler;
 import allout58.mods.techtree.handler.TickHandler;
 import allout58.mods.techtree.lib.ModInfo;
+import allout58.mods.techtree.lockdown.LockdownManager;
 import allout58.mods.techtree.network.NetworkManager;
 import allout58.mods.techtree.proxy.ISidedProxy;
 import allout58.mods.techtree.research.ResearchServer;
@@ -85,10 +86,13 @@ public class TechTreeMod
         MinecraftForge.EVENT_BUS.register(VersionChecker.instance);
         FMLCommonHandler.instance().bus().register(TickHandler.INSTANCE);
         FMLCommonHandler.instance().bus().register(PlayerHandler.INSTANCE);
+        FMLCommonHandler.instance().bus().register(LockdownManager.getInstance());
 
         /*--------------- Register blocks/items/TEs ------------------*/
         BlockRegistry.register();
         registerTileEntities();
+
+        //        LockdownManager.getInstance().lockItem(Items.bowl, UUID.randomUUID());
 
         //CraftingManager.getInstance().getRecipeList().clear();
 
