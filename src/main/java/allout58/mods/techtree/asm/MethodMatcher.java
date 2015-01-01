@@ -22,41 +22,40 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.lockdown;
+package allout58.mods.techtree.asm;
 
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.crafting.ShapedRecipes;
-import net.minecraft.world.World;
+import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 
-import java.util.UUID;
-
-/**
- * Created by James Hollowell on 12/29/2014.
- */
-public class LockdownShapedRecipe extends ShapedRecipes implements IEnableRecipe
+//Taken from OpenModsLib
+public class MethodMatcher
 {
-    private boolean isDisabled = false;
+    private final String clsName;
+    private final String description;
+    private final String srgName;
+    private final String mcpName;
 
-    public LockdownShapedRecipe(ShapedRecipes recipe)
+    public MethodMatcher(String clsName, String description, String mcpName, String srgName)
     {
-        super(recipe.recipeWidth, recipe.recipeHeight, recipe.recipeItems, recipe.getRecipeOutput());
+        this.clsName = clsName;
+        this.description = description;
+        this.srgName = srgName;
+        this.mcpName = mcpName;
+    }
+
+    public boolean match(String methodName, String methodDesc)
+    {
+        if (!methodDesc.equals(description)) return false;
+        if (methodName.equals(mcpName)) return true;
+        if (!ASMHelper.useSrgNames()) return false;
+        String mapped = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(clsName, methodName, methodDesc);
+        return mapped.equals(srgName);
     }
 
     @Override
-    public boolean matches(InventoryCrafting crafting, World world)
+    public String toString()
     {
-        return !isDisabled && super.matches(crafting, world);
+        return String.format("Matcher: %s.[%s,%s] %s", clsName, srgName, mcpName, description);
     }
 
-    @Override
-    public void enable(UUID uuid)
-    {
-        isDisabled = false;
-    }
-
-    @Override
-    public void disable(UUID uuid)
-    {
-        isDisabled = true;
-    }
 }
+

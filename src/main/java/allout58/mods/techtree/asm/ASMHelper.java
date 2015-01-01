@@ -22,60 +22,31 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.lockdown;
+package allout58.mods.techtree.asm;
 
-import net.minecraft.item.ItemStack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import net.minecraft.launchwrapper.Launch;
 
 /**
- * Created by James Hollowell on 12/29/2014.
+ * Created by James Hollowell on 12/31/2014.
  */
-public class LockdownManager
+public class ASMHelper
 {
-    private static LockdownManager instance;
-    private static Logger log = LogManager.getLogger();
-
-    private Map<String, ArrayList<ItemStack>> data = new HashMap<String, ArrayList<ItemStack>>();
-
-    public static LockdownManager getInstance()
+    //Taken from OpenModsLib
+    public static boolean useSrgNames()
     {
-        if (instance == null)
-            instance = new LockdownManager();
-        return instance;
+        Boolean deobfuscated = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+        return deobfuscated == null || !deobfuscated;
     }
 
-    public void lockItem(ItemStack stack, String uuid)
+    //Taken from OpenModsLib
+    public static String getMappedName(String clsName)
     {
-        if (data.get(uuid) == null)
-            data.put(uuid, new ArrayList<ItemStack>());
-        data.get(uuid).add(stack.copy());
+        return useSrgNames() ? FMLDeobfuscatingRemapper.INSTANCE.unmap(clsName) : clsName;
     }
 
-    public void unlockItem(ItemStack stack, String uuid)
+    public static String getName(String deobfName, String obfName)
     {
-        ArrayList<ItemStack> toRemove = new ArrayList<ItemStack>();
-        if (data.get(uuid) == null)
-            log.error("Tried unlocking an item from a player with no locked items");
-        else
-        {
-            for (ItemStack s : data.get(uuid))
-                if (s.getItem().equals(stack.getItem()) && s.getItemDamage() == stack.getItemDamage())
-                    toRemove.add(s);
-            data.get(uuid).removeAll(toRemove);
-        }
-    }
-
-    public boolean canCraft(ItemStack stack, String uuid)
-    {
-        if (stack != null && data.get(uuid) != null)
-            for (ItemStack s : data.get(uuid))
-                if (s.getItem().equals(stack.getItem()) && s.getItemDamage() == stack.getItemDamage())
-                    return false;
-        return true;
+        return useSrgNames() ? obfName : deobfName;
     }
 }

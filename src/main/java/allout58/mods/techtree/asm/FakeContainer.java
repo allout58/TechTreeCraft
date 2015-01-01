@@ -22,74 +22,35 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.lockdown;
+package allout58.mods.techtree.asm;
 
-import allout58.mods.techtree.util.LogHelper;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.world.World;
-import net.minecraftforge.oredict.ShapedOreRecipe;
-
-import java.lang.reflect.Field;
-import java.util.UUID;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.ContainerPlayer;
+import net.minecraft.inventory.IInventory;
 
 /**
- * Created by James Hollowell on 12/29/2014.
+ * Created by James Hollowell on 12/31/2014.
  */
-public class LockdownShapedOreRecipe extends ShapedOreRecipe
-        implements IEnableRecipe
+public class FakeContainer extends ContainerPlayer
 {
-    private boolean isDisabled = false;
+    private final EntityPlayer player;
 
-    public LockdownShapedOreRecipe(ShapedOreRecipe recipe)
+    public FakeContainer(InventoryPlayer inventoryPlayer, boolean isLocal, EntityPlayer entityPlayer)
     {
-        //pass in a fake recipe to make it happy, then override with the correct values
-        super(recipe.getRecipeOutput(), "x x", " x ", "x x", 'x', Blocks.bedrock);
-        try
-        {
-            Class<?> c = recipe.getClass();
-            Field inputField = c.getDeclaredField("input");
-            Field widthField = c.getDeclaredField("width");
-            Field heightField = c.getDeclaredField("height");
-            Field mirroredField = c.getDeclaredField("mirrored");
-
-            inputField.setAccessible(true);
-            widthField.setAccessible(true);
-            heightField.setAccessible(true);
-            mirroredField.setAccessible(true);
-
-            Object[] input = recipe.getInput();
-            int width = widthField.getInt(recipe);
-            int height = heightField.getInt(recipe);
-            boolean mirrored = mirroredField.getBoolean(recipe);
-
-            inputField.set(this, input);
-            widthField.setInt(this, width);
-            heightField.setInt(this, height);
-            this.setMirrored(mirrored);
-        }
-        catch (Exception e)
-        {
-            LogHelper.logger.error("Error changing shaped ore recipe", e);
-        }
-
+        super(inventoryPlayer, isLocal, entityPlayer);
+        player = entityPlayer;
     }
 
     @Override
-    public boolean matches(InventoryCrafting crafting, World world)
+    public void onCraftMatrixChanged(IInventory inv)
     {
-        return !isDisabled && super.matches(crafting, world);
+        CraftingHook.craftingChangedHook_player(craftResult, craftMatrix, player);
     }
 
     @Override
-    public void enable(UUID uuid)
+    public boolean canInteractWith(EntityPlayer player)
     {
-        isDisabled = false;
-    }
-
-    @Override
-    public void disable(UUID uuid)
-    {
-        isDisabled = true;
+        return true;
     }
 }

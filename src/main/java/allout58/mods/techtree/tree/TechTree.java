@@ -63,7 +63,7 @@ public class TechTree
         log.info("Depth found: " + depth);
         log.info("Max Width found: " + maxWidth);
         doMaxWidth2();
-        log.info("Max widnt 2: " + maxWidth);
+        log.info("Max width 2: " + maxWidth);
         doFakeNodes();
     }
 
@@ -98,7 +98,7 @@ public class TechTree
             maxWidth = Math.max(maxWidth, node.getChildren().size());
     }
 
-    private void undoFakeNodes()
+    public void undoFakeNodes()
     {
         //Todo Test this method ;)
         List<TechNode> toRemove = new ArrayList<TechNode>();

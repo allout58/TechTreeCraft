@@ -22,60 +22,45 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.lockdown;
+package allout58.mods.techtree;
 
-import net.minecraft.item.ItemStack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by James Hollowell on 12/29/2014.
+ * Created by James Hollowell on 12/31/2014.
  */
-public class LockdownManager
+@SuppressWarnings("unused")
+public class TechTreeModCorePlugin implements IFMLLoadingPlugin
 {
-    private static LockdownManager instance;
-    private static Logger log = LogManager.getLogger();
-
-    private Map<String, ArrayList<ItemStack>> data = new HashMap<String, ArrayList<ItemStack>>();
-
-    public static LockdownManager getInstance()
+    @Override
+    public String[] getASMTransformerClass()
     {
-        if (instance == null)
-            instance = new LockdownManager();
-        return instance;
+        return new String[] { "allout58.mods.techtree.asm.TechTreeModClassTransformer" };
     }
 
-    public void lockItem(ItemStack stack, String uuid)
+    @Override
+    public String getModContainerClass()
     {
-        if (data.get(uuid) == null)
-            data.put(uuid, new ArrayList<ItemStack>());
-        data.get(uuid).add(stack.copy());
+        return null;
     }
 
-    public void unlockItem(ItemStack stack, String uuid)
+    @Override
+    public String getSetupClass()
     {
-        ArrayList<ItemStack> toRemove = new ArrayList<ItemStack>();
-        if (data.get(uuid) == null)
-            log.error("Tried unlocking an item from a player with no locked items");
-        else
-        {
-            for (ItemStack s : data.get(uuid))
-                if (s.getItem().equals(stack.getItem()) && s.getItemDamage() == stack.getItemDamage())
-                    toRemove.add(s);
-            data.get(uuid).removeAll(toRemove);
-        }
+        return null;
     }
 
-    public boolean canCraft(ItemStack stack, String uuid)
+    @Override
+    public void injectData(Map<String, Object> data)
     {
-        if (stack != null && data.get(uuid) != null)
-            for (ItemStack s : data.get(uuid))
-                if (s.getItem().equals(stack.getItem()) && s.getItemDamage() == stack.getItemDamage())
-                    return false;
-        return true;
+
+    }
+
+    @Override
+    public String getAccessTransformerClass()
+    {
+        return null;
     }
 }

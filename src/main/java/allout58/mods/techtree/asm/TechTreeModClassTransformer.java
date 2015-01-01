@@ -22,18 +22,65 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.lockdown;
+package allout58.mods.techtree.asm;
 
-import net.minecraft.item.crafting.IRecipe;
-
-import java.util.UUID;
+import com.google.common.base.Preconditions;
+import cpw.mods.fml.relauncher.FMLRelaunchLog;
+import net.minecraft.launchwrapper.IClassTransformer;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
 
 /**
- * Created by James Hollowell on 12/29/2014.
+ * Created by James Hollowell on 12/31/2014.
  */
-public interface IEnableRecipe extends IRecipe
+public class TechTreeModClassTransformer implements IClassTransformer
 {
-    void enable(UUID uuid);
+    @Override
+    public byte[] transform(String name, String transformedName, byte[] bytes)
+    {
+        if (bytes == null) return null;
 
-    void disable(UUID uuid);
+        if ("net.minecraft.inventory.ContainerWorkbench".equals(transformedName))
+        {
+            FMLRelaunchLog.info("[TechTreeMod] Trying to patch ContainerWorkbench.onCraftMatrixChanged (class : %s)", name);
+            return apply(bytes, name, 0);
+        }
+        else if ("net.minecraft.inventory.ContainerPlayer".equals(transformedName))
+        {
+            FMLRelaunchLog.info("[TechTreeMod] Trying to patch ContainerPlayer.onCraftMatrixChanged (class : %s)", name);
+            return apply(bytes, name, 1);
+        }
+
+        return bytes;
+    }
+
+    private byte[] apply(byte[] bytes, String name, int id)
+    {
+        Preconditions.checkNotNull(bytes);
+        ClassReader reader = new ClassReader(bytes);
+        ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES);
+        ClassVisitor visitor = null;
+
+        switch (id)
+        {
+            case 0:
+                visitor = new CraftingContainerVisitor(name, writer);
+                break;
+            case 1:
+                visitor = new CraftingPlayerVisitor(name, writer);
+                break;
+        }
+        try
+        {
+            if (visitor != null)
+                reader.accept(visitor, 0);
+            return writer.toByteArray();
+        }
+        catch (Exception e)
+        {
+            FMLRelaunchLog.severe("Error transforming %s: %s", name, e);
+            return bytes;
+        }
+    }
 }

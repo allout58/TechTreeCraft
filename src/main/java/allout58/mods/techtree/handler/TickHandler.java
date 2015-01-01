@@ -48,9 +48,6 @@ public class TickHandler
     private static final Logger log = LogManager.getLogger();
 
     private int ticks = 0;
-    //    private Timer timer = new Timer("ResearchTimer", false);
-    //    private boolean doTick = true;
-    //    private AtomicInteger count = new AtomicInteger(0);
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event)
@@ -59,19 +56,11 @@ public class TickHandler
             return;
         if (event.phase == TickEvent.Phase.START)
             return;
-        //        for (ResearchData data : ResearchServer.getInstance().getAllData())
-        //        {
-        //            if (data.getMode() == NodeMode.Researching)
-        //            {
-        //                //if (data.getUuid().equals(event.player.getUniqueID()))
-        //                ResearchServer.getInstance().setResearch(data.getUuid(), data.getNodeID(), data.getResearchAmount() + 1);
-        //            }
-        //        }
         if (ticks++ > 300)
         {
             try
             {
-                log.info("PlayerTikTok");
+                //                log.info("PlayerTikTok");
                 for (Object player : FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().playerEntityList)
                 {
                     if (player instanceof EntityPlayer)
@@ -100,70 +89,10 @@ public class TickHandler
             }
             catch (Exception e)
             {
-                LogManager.getLogger().error(e);
+                log.error(e);
             }
             ticks = 0;
         }
 
     }
-
-    //    public void startTimer()
-    //    {
-    //        CodeContextHelper.getInstance().registerThreadAsServer("ResearchTimer");
-    //        timer = new Timer("ResearchTimer", false);
-    //        timer.scheduleAtFixedRate(new TimerTask()
-    //        {
-    //            @Override
-    //            public void run()
-    //            {
-    //                try
-    //                {
-    //                    if (doTick)
-    //                    {
-    //                        log.info("TikTok");
-    //                        for (Object player : FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().playerEntityList)
-    //                        {
-    //                            if (player instanceof EntityPlayer)
-    //                            {
-    //                                if (ResearchServer.getInstance().getResearchRate(((EntityPlayer) player).getUniqueID().toString()) == 0)
-    //                                    continue;
-    //                                List<ResearchData> toupdate = new ArrayList<ResearchData>();
-    //                                for (ResearchData data : ResearchServer.getInstance().getClientData(((EntityPlayer) player).getUniqueID().toString()))
-    //                                    if (data.getMode() == NodeMode.Researching)
-    //                                        toupdate.add(data);
-    //
-    //                                for (int i = 0; i < toupdate.size() - 1; i++)
-    //                                {
-    //                                    ResearchData data = toupdate.get(i);
-    //                                    int rate = ResearchServer.getInstance().getResearchRate(data.getUuid()) / toupdate.size();
-    //                                    ResearchServer.getInstance().setResearch(data.getUuid(), data.getNodeID(), data.getResearchAmount() + rate);
-    //                                }
-    //                                if (toupdate.size() > 0)
-    //                                {
-    //                                    ResearchData data = toupdate.get(toupdate.size() - 1);
-    //                                    int rate = ResearchServer.getInstance().getResearchRate(data.getUuid()) / toupdate.size() + ResearchServer.getInstance().getResearchRate(data.getUuid()) % toupdate.size();
-    //                                    ResearchServer.getInstance().setResearch(data.getUuid(), data.getNodeID(), data.getResearchAmount() + rate);
-    //                                }
-    //                            }
-    //                        }
-    //                    }
-    //                    else
-    //                        this.cancel();
-    //                }
-    //                catch (Exception e)
-    //                {
-    //                    LogManager.getLogger().error("Excetpion " + count.get(), e);
-    //                    if (count.getAndIncrement() > 5)
-    //                        this.cancel();
-    //                }
-    //            }
-    //        }, 0, 15000);
-    //    }
-    //
-    //    public void stop()
-    //    {
-    //        doTick = false;
-    //        timer.cancel();
-    //    }
-
 }

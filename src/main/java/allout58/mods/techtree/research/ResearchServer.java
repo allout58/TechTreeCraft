@@ -24,6 +24,7 @@
 
 package allout58.mods.techtree.research;
 
+import allout58.mods.techtree.lockdown.LockdownManager;
 import allout58.mods.techtree.network.NetworkManager;
 import allout58.mods.techtree.network.message.SendResearch;
 import allout58.mods.techtree.network.message.UpdateNodeMode;
@@ -36,6 +37,7 @@ import allout58.mods.techtree.util.LogHelper;
 import allout58.mods.techtree.util.PlayerHelper;
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.storage.SaveHandler;
 import org.apache.logging.log4j.LogManager;
@@ -120,6 +122,8 @@ public class ResearchServer implements IResearchHolder
                         child = child.getChildren().get(0);
                     setMode(uuid, child.getId(), child.onParentUpdate(getMode(uuid, child.getId()), uuid));
                 }
+                for (ItemStack s : node.getLockedItems())
+                    LockdownManager.getInstance().unlockItem(s, uuid);
                 data.get(uuid).get(nodeID).forceUpdate();
             }
         }
@@ -272,6 +276,17 @@ public class ResearchServer implements IResearchHolder
         }
         if (rate.get(uuid) == null)
             rate.put(uuid, 0);
+
+        for (TechNode node : TreeManager.instance().getTree().getNodes())
+        {
+            if (node instanceof FakeNode) continue;
+            if (data.get(uuid).get(node.getId()).getMode() == NodeMode.Completed)
+                for (ItemStack s : node.getLockedItems())
+                    LockdownManager.getInstance().unlockItem(s, uuid);
+            else
+                for (ItemStack s : node.getLockedItems())
+                    LockdownManager.getInstance().lockItem(s, uuid);
+        }
     }
 
     private File getSaveFile()
