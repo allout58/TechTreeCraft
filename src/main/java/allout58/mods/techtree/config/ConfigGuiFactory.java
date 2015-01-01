@@ -22,74 +22,46 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.client;
+package allout58.mods.techtree.config;
 
-import net.minecraft.client.gui.Gui;
+import cpw.mods.fml.client.IModGuiFactory;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
- * Created by James Hollowell on 12/16/2014.
+ * Created by James Hollowell on 7/7/2014.
  */
-public class GuiElementProgressBar extends GuiElement
+public class ConfigGuiFactory implements IModGuiFactory
 {
-    private static final float delta = .0001F;
-
-    private float max = 0;
-    private float current = 0;
-    private long lastTime = 0;
-    private int color = 0;
-    private int colorBorder = 0;
-    private int colorBackground = 0;
-
-    public GuiElementProgressBar(int width, int height, int xPosition, int yPosition, float max, int color, int colorBorder, int colorBackground)
+    @Override
+    public void initialize(Minecraft minecraft)
     {
-        super(width, height, xPosition, yPosition);
-        this.max = max;
-        this.color = color;
-        this.colorBorder = colorBorder;
-        this.colorBackground = colorBackground;
-    }
 
-    public void setMax(float max)
-    {
-        this.max = max;
     }
 
     @Override
-    public void doRender()
+    public Class<? extends GuiScreen> mainConfigGuiClass()
     {
-        if (enabled && visible)
-        {
-            if (lastTime == 0)
-                current = max;
-            Gui.drawRect(xPosition, yPosition, xPosition + width, yPosition + height, colorBorder);
-            Gui.drawRect(xPosition + 1, yPosition + 1, xPosition + width - 1, yPosition + height - 1, colorBackground);
-            update();
-            lastTime = System.currentTimeMillis();
-            Gui.drawRect(xPosition + 1, yPosition + 1, xPosition + (int) (width * current) + 1, yPosition + height - 1, color);
-        }
+        return ConfigGui.class;
     }
 
-    /*
-    Taken with love from KJ4IPS:
-    https://github.com/KJ4IPS/Tomfoolrey/blob/master/src/main/java/haun/guru/fooling/gui/elements/GraidentBar.java
-    */
-    private void update()
+    @Override
+    public Set<RuntimeOptionCategoryElement> runtimeGuiCategories()
     {
-        //This line disables the slewing for now...
-        //current = max;
-        if (current != max)
-        {
-            float diff = delta * (System.currentTimeMillis() - lastTime);
+        Set<RuntimeOptionCategoryElement> set = new TreeSet<RuntimeOptionCategoryElement>();
+        set.add(new RuntimeOptionCategoryElement("Help", "Bla 1"));
+        set.add(new RuntimeOptionCategoryElement("Help", "Bla 2"));
+        set.add(new RuntimeOptionCategoryElement("Bla 1", "Sub-bla 1"));
+        set.add(new RuntimeOptionCategoryElement("Colors", Config.CLIENT_CAT));
+        return null;
+    }
 
-            if (Math.abs(max - current) < diff)
-            {
-                current = max;
-            }
-            else
-            {
-                byte dir = (byte) ((max - current) > 0 ? 1 : -1);
-                current += diff * dir;
-            }
-        }
+    @Override
+    public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement runtimeOptionCategoryElement)
+    {
+        return null;
     }
 }

@@ -24,6 +24,7 @@
 
 package allout58.mods.techtree.client;
 
+import allout58.mods.techtree.config.Config;
 import allout58.mods.techtree.network.NetworkManager;
 import allout58.mods.techtree.network.message.ChangeNodeMode;
 import allout58.mods.techtree.network.message.RequestAll;
@@ -191,7 +192,7 @@ public class GuiTree extends GuiScreen
 
     protected void drawBackground()
     {
-        drawRect(xStart, 15, xStart + WIDTH, 15 + HEIGHT, 0xF0AAAAAA);
+        drawRect(xStart, 15, xStart + WIDTH, 15 + HEIGHT, Config.INSTANCE.client.colorBackground);
     }
 
     protected void drawForeground()
@@ -206,11 +207,11 @@ public class GuiTree extends GuiScreen
             TechNode btnNode = btn.getNode();
             for (int node : btnNode.getParentID())
             {
-                RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), buttons[node].getOutX(), buttons[node].getOutY(), 2.5f, 0);
+                RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), buttons[node].getOutX(), buttons[node].getOutY(), 2.5f, Config.INSTANCE.client.colorConnectors);
             }
             if (btnNode.getClass().equals(FakeNode.class))
             {
-                RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), btn.getOutX(), btn.getOutY(), 2.5f, 0);
+                RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), btn.getOutX(), btn.getOutY(), 2.5f, Config.INSTANCE.client.colorConnectors);
             }
         }
     }
@@ -231,15 +232,15 @@ public class GuiTree extends GuiScreen
 
                 try
                 {
-                    RenderingHelper.drawRoundedRectangle(mouseX + 2, mouseY + 2, w, h, 7, 0xF08694E3);
-                    fontRendererObj.drawString(btn.getNode().getName(), mouseX + 2 + 6, mouseY + 2 + 6, 0xFFFFFFFF, true);
-                    drawHorizontalLine(mouseX + 7, mouseX + w - 7, mouseY + 10 + fontRendererObj.FONT_HEIGHT, 0xFFDDDDDD);
+                    RenderingHelper.drawRoundedRectangle(mouseX + 2, mouseY + 2, w, h, 7, Config.INSTANCE.client.colorOverlayBackground);
+                    fontRendererObj.drawString(btn.getNode().getName(), mouseX + 2 + 6, mouseY + 2 + 6, Config.INSTANCE.client.colorOverlayText, true);
+                    drawHorizontalLine(mouseX + 7, mouseX + w - 7, mouseY + 10 + fontRendererObj.FONT_HEIGHT, Config.INSTANCE.client.colorOverlayOther);
 
                     GL11.glPushMatrix();
                     GL11.glScaled(0.5, 0.5, 0);
                     GL11.glTranslated(mouseX, mouseY, 0);
-                    fontRendererObj.drawString(StatCollector.translateToLocalFormatted("gui.scienceRequired", btn.getNode().getScienceRequired()), mouseX + 14, mouseY + 17 + fontRendererObj.FONT_HEIGHT * 3, 0xFFFFFFFF);
-                    fontRendererObj.drawSplitString(btn.getNode().getDescription(), mouseX + 14, mouseY + 22 + fontRendererObj.FONT_HEIGHT * 4, w * 2 - 10, 0xFFFFFFFF);
+                    fontRendererObj.drawString(StatCollector.translateToLocalFormatted("gui.scienceRequired", btn.getNode().getScienceRequired()), mouseX + 14, mouseY + 17 + fontRendererObj.FONT_HEIGHT * 3, Config.INSTANCE.client.colorOverlayText);
+                    fontRendererObj.drawSplitString(btn.getNode().getDescription(), mouseX + 14, mouseY + 22 + fontRendererObj.FONT_HEIGHT * 4, w * 2 - 10, Config.INSTANCE.client.colorOverlayText);
                     GL11.glPopMatrix();
 
                     for (int i = 0; i < btn.getNode().getLockedItems().length; i++)

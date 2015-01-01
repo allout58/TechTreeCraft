@@ -26,6 +26,7 @@ package allout58.mods.techtree;
 
 import allout58.mods.techtree.commands.ResearchCommand;
 import allout58.mods.techtree.common.block.BlockRegistry;
+import allout58.mods.techtree.config.Config;
 import allout58.mods.techtree.handler.PlayerHandler;
 import allout58.mods.techtree.handler.TickHandler;
 import allout58.mods.techtree.lib.ModInfo;
@@ -45,12 +46,13 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 
 /**
  * Created by James Hollowell on 12/5/2014.
  */
 
-@Mod(modid = ModInfo.MOD_ID, name = ModInfo.MOD_NAME, version = "@VERSION@")
+@Mod(modid = ModInfo.MOD_ID, name = ModInfo.MOD_NAME, version = "@VERSION@", guiFactory = "allout58.mods.techtree.config.ConfigGuiFactory")
 public class TechTreeMod
 {
     public static String version = "@VERSION@";
@@ -74,10 +76,10 @@ public class TechTreeMod
     public void pre(FMLPreInitializationEvent event)
     {
         //Todo: Test multiplayer and true client-server.
-
         LogHelper.init(event.getModLog());
         LogHelper.logger.info(LogHelper.PREINIT, "TechTree " + version + " pre-initializing");
         NetworkManager.init();
+        Config.INSTANCE = new Config(new Configuration(event.getSuggestedConfigurationFile()));
         //VersionChecker.execute();
         TreeManager.instance().readTree("./tree.json");
 
@@ -85,12 +87,11 @@ public class TechTreeMod
         MinecraftForge.EVENT_BUS.register(VersionChecker.instance);
         FMLCommonHandler.instance().bus().register(TickHandler.INSTANCE);
         FMLCommonHandler.instance().bus().register(PlayerHandler.INSTANCE);
+        FMLCommonHandler.instance().bus().register(Config.INSTANCE);
 
         /*--------------- Register blocks/items/TEs ------------------*/
         BlockRegistry.register();
         registerTileEntities();
-
-        //CraftingManager.getInstance().getRecipeList().clear();
 
         LogHelper.logger.info(LogHelper.PREINIT, "TechTree pre-initialization complete");
     }
@@ -100,7 +101,6 @@ public class TechTreeMod
     {
         event.registerServerCommand(new ResearchCommand());
         ResearchServer.getInstance().load();
-        //        TickHandler.INSTANCE.startTimer();
     }
 
     @Mod.EventHandler
@@ -108,7 +108,6 @@ public class TechTreeMod
     {
         ResearchServer.getInstance().save();
         ResearchServer.getInstance().clearAll();
-        //        TickHandler.INSTANCE.stop();
     }
 
     static

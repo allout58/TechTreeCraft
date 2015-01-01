@@ -24,6 +24,7 @@
 
 package allout58.mods.techtree.client;
 
+import allout58.mods.techtree.config.Config;
 import allout58.mods.techtree.research.ResearchClient;
 import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.TechNode;
@@ -48,7 +49,7 @@ public class GuiButtonTechNode extends GuiButton
 
         try
         {
-            bar = new GuiElementProgressBar(width - 10, 5, x + 5, y + height - 8, (float) (ResearchClient.getInstance().getResearch(node.getId())) / (float) (node.getScienceRequired()), 0xFF119911, 0xFF991111);
+            bar = new GuiElementProgressBar(width - 10, 5, x + 5, y + height - 8, (float) (ResearchClient.getInstance().getResearch(node.getId())) / (float) (node.getScienceRequired()), Config.INSTANCE.client.colorProgressBarMain, Config.INSTANCE.client.colorProgressBarBorder, Config.INSTANCE.client.colorProgressBarBackground);
             bar.setVisible(true);
         }
         catch (IllegalAccessException e)
@@ -90,10 +91,10 @@ public class GuiButtonTechNode extends GuiButton
             switch (ResearchClient.getInstance(playerUUID).getMode(node.getId()))
             {
                 case Locked:
-                    drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFF777777, 0xFF333333);
+                    drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, Config.INSTANCE.client.colorBtnLocked1, Config.INSTANCE.client.colorBtnLocked2);
                     break;
                 case Unlocked:
-                    drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFFAAAAAA, 0xFF656565);
+                    drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, Config.INSTANCE.client.colorBtnUnlocked1, Config.INSTANCE.client.colorBtnUnlocked2);
                     try
                     {
                         bar.setEnabled(ResearchClient.getInstance().getResearch(node.getId()) > 0);
@@ -104,11 +105,11 @@ public class GuiButtonTechNode extends GuiButton
                     }
                     break;
                 case Researching:
-                    drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFF9999FF, 0xFF6565a5);
+                    drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, Config.INSTANCE.client.colorBtnResearch1, Config.INSTANCE.client.colorBtnResearch2);
                     bar.setEnabled(true);
                     break;
                 case Completed:
-                    drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, 0xFF2CC9B7, 0xFF3F998E);
+                    drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, Config.INSTANCE.client.colorBtnCompleted1, Config.INSTANCE.client.colorBtnCompleted2);
                     bar.setEnabled(false);
                     break;
                 default:
@@ -124,15 +125,14 @@ public class GuiButtonTechNode extends GuiButton
 
             GL11.glScaled(0.75, 0.75, 0.75);
             GL11.glTranslated(xPosition * .33, yPosition * .33, 0);
-            fontRenderer.drawString(node.getName(), xPosition + 2, yPosition + 2, 0xFFFFFFFF, true);
+            fontRenderer.drawString(node.getName(), xPosition + 2, yPosition + 2, Config.INSTANCE.client.colorBtnText, true);
 
             GL11.glPopMatrix();
 
             GL11.glPushMatrix();
             GL11.glScaled(.5, .5, .5);
             GL11.glTranslated(xPosition, yPosition, 0);
-            fontRenderer.drawString(ResearchClient.getInstance(playerUUID).getMode(node.getId()).name(), xPosition + 2, yPosition + 10 + fontRenderer.FONT_HEIGHT, 0xFFFFFFFF, false);
-            //fontRenderer.drawSplitString(node.getDescription(), xPosition + 4, yPosition + 18 + fontRenderer.FONT_HEIGHT * 2, width * 2, 0xFFFFFFFF);
+            fontRenderer.drawString(ResearchClient.getInstance(playerUUID).getMode(node.getId()).name(), xPosition + 2, yPosition + 10 + fontRenderer.FONT_HEIGHT, Config.INSTANCE.client.colorBtnText, false);
             GL11.glPopMatrix();
 
             GL11.glPushMatrix();
