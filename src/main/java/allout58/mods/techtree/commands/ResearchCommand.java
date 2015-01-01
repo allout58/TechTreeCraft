@@ -24,7 +24,6 @@
 
 package allout58.mods.techtree.commands;
 
-import allout58.mods.techtree.lockdown.LockdownManager;
 import allout58.mods.techtree.research.ResearchServer;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -36,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by James Hollowell on 12/20/2014.
@@ -104,11 +102,6 @@ public class ResearchCommand extends CommandBase
         {
             ResearchServer.getInstance().load();
             commandSender.addChatMessage(new ChatComponentText("Research reloaded from disk"));
-        }
-        else if ("unlock".equalsIgnoreCase(astring[0]))
-        {
-            LockdownManager.getInstance().unlockItem(CommandBase.getItemByText(commandSender, astring[1]), UUID.randomUUID());
-            commandSender.addChatMessage(new ChatComponentText("Item's crafting recipe now unlocked!"));
         }
     }
 
