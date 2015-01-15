@@ -22,32 +22,33 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.proxy;
+package allout58.mods.techtree.client;
 
-import allout58.mods.techtree.client.GuiEditTree2;
-import allout58.mods.techtree.tree.TreeManager;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
+import allout58.mods.techtree.config.Config;
+import allout58.mods.techtree.tree.FakeNode;
+import allout58.mods.techtree.tree.TechNode;
+import allout58.mods.techtree.util.RenderingHelper;
+
+import java.util.Map;
 
 /**
- * Created by James Hollowell on 12/5/2014.
+ * Created by James Hollowell on 1/1/2015.
  */
-public class ClientProxy implements ISidedProxy
+public class TreeRenderingHelper
 {
-    public void registerRenderers()
+    public static void renderConnectorLines(Map<Integer, AbstractGuiButtonNode> buttons)
     {
-
-    }
-
-    @Override
-    public void openGui(int id, EntityPlayer player)
-    {
-        switch (id)
+        for (AbstractGuiButtonNode btn : buttons.values())
         {
-            case 0:
-                Minecraft.getMinecraft().displayGuiScreen(new GuiEditTree2(TreeManager.instance().getTree()));
-                //                Minecraft.getMinecraft().displayGuiScreen(new GuiTree(TreeManager.instance().getTree(), player.getUniqueID()));
+            TechNode btnNode = btn.getNode();
+            for (int node : btnNode.getParentID())
+            {
+                RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), buttons.get(node).getOutX(), buttons.get(node).getOutY(), .75f, Config.INSTANCE.client.colorConnectors);
+            }
+            if (btnNode.getClass().equals(FakeNode.class))
+            {
+                RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), btn.getOutX(), btn.getOutY(), .75f, Config.INSTANCE.client.colorConnectors);
+            }
         }
     }
-
 }

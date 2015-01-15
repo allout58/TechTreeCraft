@@ -31,7 +31,6 @@ import net.minecraft.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -48,7 +47,7 @@ public class TreeManager
 
     private static TreeManager INSTANCE;
     private TechTree currentTree;
-    private String treeString = "";
+    //    private String treeString = "";
 
     public static TreeManager instance()
     {
@@ -74,14 +73,14 @@ public class TreeManager
             makeFromReader(reader);
             reader.close();
 
-            reader = new FileReader(file);
-            BufferedReader br = new BufferedReader(reader);
-            String line;
-            while ((line = br.readLine()) != null)
-            {
-                treeString += line;
-            }
-            br.close();
+            //            reader = new FileReader(file);
+            //            BufferedReader br = new BufferedReader(reader);
+            //            String line;
+            //            while ((line = br.readLine()) != null)
+            //            {
+            //                treeString += line;
+            //            }
+            //            br.close();
         }
         catch (IOException e)
         {
@@ -96,17 +95,18 @@ public class TreeManager
         log.info("Reading tree from string " + jsonTree);
         makeFromReader(reader);
         reader.close();
+        log.info("Tree read in");
     }
 
     public String getTreeAsString()
     {
-        //        GsonBuilder gsonBuilder = new GsonBuilder();
-        //        gsonBuilder.registerTypeAdapter(TechNode.class, new TechNodeGSON());
-        //        Gson gson = gsonBuilder.create();
-        //
-        //        TechNode[] nodes = currentTree.getRealNodes().toArray(new TechNode[currentTree.getNodes().size()]);
-        //        return gson.toJson(nodes);
-        return treeString;
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(TechNode.class, new TechNodeGSON());
+        Gson gson = gsonBuilder.create();
+
+        TechNode[] nodes = currentTree.getRealNodes().toArray(new TechNode[currentTree.getNodes().size()]);
+        return gson.toJson(nodes);
+        //        return treeString;
     }
 
     public void makeFromReader(Reader reader)

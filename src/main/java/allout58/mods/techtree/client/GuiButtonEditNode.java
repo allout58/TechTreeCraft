@@ -22,32 +22,57 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.proxy;
+package allout58.mods.techtree.client;
 
-import allout58.mods.techtree.client.GuiEditTree2;
-import allout58.mods.techtree.tree.TreeManager;
+import allout58.mods.techtree.config.Config;
+import allout58.mods.techtree.tree.TechNode;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.gui.FontRenderer;
+import org.lwjgl.opengl.GL11;
 
 /**
- * Created by James Hollowell on 12/5/2014.
+ * Created by James Hollowell on 1/1/2015.
  */
-public class ClientProxy implements ISidedProxy
+public class GuiButtonEditNode extends AbstractGuiButtonNode
 {
-    public void registerRenderers()
-    {
+    public boolean isSelected = false;
 
+    public GuiButtonEditNode(int id, int x, int y, int width, int height, TechNode node)
+    {
+        super(id, x, y, width, height, node);
     }
 
     @Override
-    public void openGui(int id, EntityPlayer player)
+    public void drawButton(Minecraft mc, int mouseX, int mouseY)
     {
-        switch (id)
+        if (this.visible)
         {
-            case 0:
-                Minecraft.getMinecraft().displayGuiScreen(new GuiEditTree2(TreeManager.instance().getTree()));
-                //                Minecraft.getMinecraft().displayGuiScreen(new GuiTree(TreeManager.instance().getTree(), player.getUniqueID()));
+            FontRenderer fontRenderer = mc.fontRenderer;
+            boolean mouseOver = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + width && mouseY < yPosition + height;
+
+            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+            drawGradientRect(xPosition, yPosition, xPosition + width, yPosition + height, Config.INSTANCE.client.colorBtnUnlocked1, Config.INSTANCE.client.colorBtnUnlocked2);
+
+            if (isSelected)
+            {
+                drawRect(xPosition - 1, yPosition - 1, xPosition + width + 1, yPosition + height + 1, 0x99101010);
+            }
+
+            if (mouseOver)
+            {
+                drawRect(xPosition - 2, yPosition - 2, xPosition + width + 2, yPosition + height + 2, 0x30FFFFFF);
+            }
+
+            GL11.glPushMatrix();
+
+            GL11.glScaled(0.75, 0.75, 0.75);
+            GL11.glTranslated(xPosition * .33, yPosition * .33, 0);
+            fontRenderer.drawString(node.getName(), xPosition + 2, yPosition + 2, Config.INSTANCE.client.colorBtnText, true);
+
+            GL11.glPopMatrix();
+
+            this.mouseDragged(mc, mouseX, mouseY);
         }
     }
-
 }

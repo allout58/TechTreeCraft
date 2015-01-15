@@ -45,8 +45,10 @@ import net.minecraft.util.StatCollector;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -56,8 +58,6 @@ import java.util.UUID;
 @SideOnly(Side.CLIENT)
 public class GuiTree extends GuiScreen
 {
-    public static final int WIDTH = 300;
-    public static final int HEIGHT = 240;
 
     public static final int MIN_NODE_WIDTH = 40;
     public static final int MIN_NODE_HEIGHT = 20;
@@ -68,10 +68,14 @@ public class GuiTree extends GuiScreen
     public static final int PAD_X = 20;
     public static final int PAD_Y = 15;
 
-    public int xStart;
+    public static final int X_START = 15;
+    public static final int Y_START = 15;
+
+    public int renderWidth = 300;
+    public int renderHeight = 240;
 
     private TechTree tree;
-    private GuiButtonTechNode[] buttons;
+    private Map<Integer, AbstractGuiButtonNode> buttons = new HashMap<Integer, AbstractGuiButtonNode>();
     private String uuid = "";
 
     public GuiTree(TechTree tree, UUID player)
@@ -79,7 +83,6 @@ public class GuiTree extends GuiScreen
         super();
         this.tree = tree;
         uuid = player.toString();
-        buttons = new GuiButtonTechNode[tree.getNodes().size()];
 
         if (!ResearchClient.getInstance(uuid).isUpdated())
             for (TechNode node : tree.getNodes())
@@ -95,18 +98,19 @@ public class GuiTree extends GuiScreen
 
         NetworkManager.INSTANCE.sendToServer(new RequestAll(FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString()));
 
-        xStart = (width - WIDTH) / 2;
+        renderWidth = width - X_START * 2;
+        renderHeight = height - Y_START * 2;
 
         List<Integer> xCoords = new ArrayList<Integer>(tree.getDepth());
 
-        int nodeWidth = (WIDTH - PAD_X * tree.getDepth()) / tree.getDepth();
+        int nodeWidth = (renderWidth - PAD_X * tree.getDepth()) / tree.getDepth();
         nodeWidth = Math.max(nodeWidth, MIN_NODE_WIDTH);
         nodeWidth = Math.min(nodeWidth, MAX_NODE_WIDTH);
 
         for (int i = 0; i < tree.getDepth(); i++)
-            xCoords.add(i, nodeWidth * i + PAD_X * (i + 1) + xStart);
+            xCoords.add(i, nodeWidth * i + PAD_X * (i + 1) + X_START);
 
-        int nodeHeight = (HEIGHT - PAD_Y * tree.getMaxWidth()) / tree.getMaxWidth();
+        int nodeHeight = (renderHeight - PAD_Y * tree.getMaxWidth()) / tree.getMaxWidth();
         nodeHeight = Math.max(nodeHeight, MIN_NODE_HEIGHT);
         nodeHeight = Math.min(nodeHeight, MAX_NODE_HEIGHT);
 
@@ -128,7 +132,7 @@ public class GuiTree extends GuiScreen
                 TechNode node = it.next();
                 GuiButtonTechNode btn = new GuiButtonTechNode(node.getId(), xCoords.get(node.getDepth() - 1), yCoords.get(i + yLoc) + 20, nodeWidth, nodeHeight, node);
 
-                buttons[node.getId()] = btn;
+                buttons.put(node.getId(), btn);
                 buttonList.add(btn);
             }
         }
@@ -177,6 +181,7 @@ public class GuiTree extends GuiScreen
     @Override
     protected void keyTyped(char c, int key)
     {
+        //TODO REMOVE AFTER DEBUG
         super.keyTyped(c, key);
         if (c == 'r')
         {
@@ -184,7 +189,7 @@ public class GuiTree extends GuiScreen
         }
         if (c == 'f')
         {
-            for (GuiButton btn : buttons)
+            for (GuiButton btn : buttons.values())
                 if (((GuiButtonTechNode) btn).getNode() instanceof FakeNode)
                     btn.visible = !btn.visible;
         }
@@ -192,34 +197,18 @@ public class GuiTree extends GuiScreen
 
     protected void drawBackground()
     {
-        drawRect(xStart, 15, xStart + WIDTH, 15 + HEIGHT, Config.INSTANCE.client.colorBackground);
+        drawRect(X_START, Y_START, X_START + renderWidth, Y_START + renderHeight, Config.INSTANCE.client.colorBackground);
     }
 
     protected void drawForeground()
     {
-        drawTreeLines();
-    }
-
-    private void drawTreeLines()
-    {
-        for (GuiButtonTechNode btn : buttons)
-        {
-            TechNode btnNode = btn.getNode();
-            for (int node : btnNode.getParentID())
-            {
-                RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), buttons[node].getOutX(), buttons[node].getOutY(), 2.5f, Config.INSTANCE.client.colorConnectors);
-            }
-            if (btnNode.getClass().equals(FakeNode.class))
-            {
-                RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), btn.getOutX(), btn.getOutY(), 2.5f, Config.INSTANCE.client.colorConnectors);
-            }
-        }
+        TreeRenderingHelper.renderConnectorLines(buttons);
     }
 
     @SuppressWarnings("unchecked")
-    private void drawOverlay(int mouseX, int mouseY)
+    protected void drawOverlay(int mouseX, int mouseY)
     {
-        for (GuiButtonTechNode btn : buttons)
+        for (AbstractGuiButtonNode btn : buttons.values())
         {
             if (btn.mousePressed(this.mc, mouseX, mouseY))
             {

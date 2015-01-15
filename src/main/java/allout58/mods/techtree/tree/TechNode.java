@@ -77,7 +77,8 @@ public class TechNode implements Comparable<TechNode>
      */
     public void addParentNode(int parent)
     {
-        parentID.add(parent);
+        if (!parentID.contains(parent))
+            parentID.add(parent);
     }
 
     /**
@@ -87,7 +88,8 @@ public class TechNode implements Comparable<TechNode>
      */
     public void addParentNode(TechNode parent)
     {
-        parents.add(parent);
+        if (!parents.contains(parent))
+            parents.add(parent);
     }
 
     /**
@@ -97,7 +99,8 @@ public class TechNode implements Comparable<TechNode>
      */
     public void addChildNode(TechNode child)
     {
-        children.add(child);
+        if (!children.contains(child))
+            children.add(child);
     }
 
     /**

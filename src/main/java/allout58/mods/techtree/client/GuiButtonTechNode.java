@@ -31,40 +31,28 @@ import allout58.mods.techtree.tree.TechNode;
 import cpw.mods.fml.client.FMLClientHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
 import org.lwjgl.opengl.GL11;
 
 /**
  * Created by James Hollowell on 12/9/2014.
  */
-public class GuiButtonTechNode extends GuiButton
+public class GuiButtonTechNode extends AbstractGuiButtonNode
 {
     public GuiElementProgressBar bar;
 
-    private TechNode node;
-
     public GuiButtonTechNode(int id, int x, int y, int width, int height, TechNode node)
     {
-        super(id, x, y, width, height, "");
+        super(id, x, y, width, height, node);
 
         try
         {
             bar = new GuiElementProgressBar(width - 10, 5, x + 5, y + height - 8, (float) (ResearchClient.getInstance().getResearch(node.getId())) / (float) (node.getScienceRequired()), Config.INSTANCE.client.colorProgressBarMain, Config.INSTANCE.client.colorProgressBarBorder, Config.INSTANCE.client.colorProgressBarBackground);
-            bar.setVisible(true);
+            bar.setVisible(!(node instanceof FakeNode));
         }
         catch (IllegalAccessException e)
         {
             e.printStackTrace();
         }
-
-        if (node instanceof FakeNode)
-        {
-            this.visible = this.enabled = false;
-            this.height = 2;
-            bar.setVisible(false);
-        }
-
-        this.node = node;
     }
 
     @Override
@@ -142,30 +130,5 @@ public class GuiButtonTechNode extends GuiButton
 
             this.mouseDragged(mc, mouseX, mouseY);
         }
-    }
-
-    public TechNode getNode()
-    {
-        return node;
-    }
-
-    public int getInX()
-    {
-        return xPosition;
-    }
-
-    public int getInY()
-    {
-        return (yPosition * 2 + height) / 2;
-    }
-
-    public int getOutX()
-    {
-        return xPosition + width;
-    }
-
-    public int getOutY()
-    {
-        return (yPosition * 2 + height) / 2;
     }
 }

@@ -22,32 +22,52 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.proxy;
+package allout58.mods.techtree.client;
 
-import allout58.mods.techtree.client.GuiEditTree2;
-import allout58.mods.techtree.tree.TreeManager;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
+import allout58.mods.techtree.tree.FakeNode;
+import allout58.mods.techtree.tree.TechNode;
+import net.minecraft.client.gui.GuiButton;
 
 /**
- * Created by James Hollowell on 12/5/2014.
+ * Created by James Hollowell on 1/2/2015.
  */
-public class ClientProxy implements ISidedProxy
+public abstract class AbstractGuiButtonNode extends GuiButton
 {
-    public void registerRenderers()
-    {
+    protected TechNode node;
 
-    }
-
-    @Override
-    public void openGui(int id, EntityPlayer player)
+    public AbstractGuiButtonNode(int id, int x, int y, int width, int height, TechNode node)
     {
-        switch (id)
+        super(id, x, y, width, height, "");
+        this.node = node;
+        if (node instanceof FakeNode)
         {
-            case 0:
-                Minecraft.getMinecraft().displayGuiScreen(new GuiEditTree2(TreeManager.instance().getTree()));
-                //                Minecraft.getMinecraft().displayGuiScreen(new GuiTree(TreeManager.instance().getTree(), player.getUniqueID()));
+            this.visible = this.enabled = false;
+            this.height = 2;
         }
     }
 
+    public TechNode getNode()
+    {
+        return node;
+    }
+
+    public int getInX()
+    {
+        return xPosition;
+    }
+
+    public int getInY()
+    {
+        return (yPosition * 2 + height) / 2;
+    }
+
+    public int getOutX()
+    {
+        return xPosition + width;
+    }
+
+    public int getOutY()
+    {
+        return (yPosition * 2 + height) / 2;
+    }
 }

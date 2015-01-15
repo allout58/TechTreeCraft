@@ -56,6 +56,11 @@ public class TechTree
 
     public void setup()
     {
+        list.clear();
+        nodes.clear();
+        nodeMap.clear();
+        depth = 0;
+        maxWidth = 0;
         doMaxDepth(head, 0);
         for (int i = 0; i < depth; i++)
             list.add(new TreeSet<TechNode>());
@@ -79,7 +84,16 @@ public class TechTree
             return;
         }
         for (TechNode child : node.getChildren())
+        {
+            if (child == node)
+                continue;
+            if (child.getChildren().contains(node))
+            {
+                child.getChildren().remove(node);
+                continue;
+            }
             doMaxDepth(child, currDepth + 1);
+        }
     }
 
     private void doMaxWidth()
@@ -107,7 +121,7 @@ public class TechTree
             if (node instanceof FakeNode)
             {
                 toRemove.add(node);
-                list.get(node.getDepth()).remove(node);
+                list.get(node.getDepth() - 1).remove(node);
 
                 TechNode parent = node.getParents().get(0);
                 TechNode child = node.getChildren().get(0);
@@ -122,6 +136,7 @@ public class TechTree
                 child.getParentID().add(parent.getId());
             }
         }
+        nodes.removeAll(toRemove);
     }
 
     private void doFakeNodes()

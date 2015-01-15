@@ -60,9 +60,9 @@ public class ResearchCommand extends CommandBase
     @Override
     public String getCommandUsage(ICommandSender var1)
     {
-        String use = "/research getRate <player> |";
-        use += "/research clear <player> |";
-        use += "/research save |";
+        String use = "/research getRate <player> | ";
+        use += "/research clear <player> | ";
+        use += "/research save | ";
         use += "/research load";
         return use;
     }
