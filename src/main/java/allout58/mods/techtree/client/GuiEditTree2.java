@@ -61,6 +61,9 @@ import java.util.TreeSet;
 @SideOnly(Side.CLIENT)
 public class GuiEditTree2 extends GuiScreen
 {
+    //TODO Better locked item editing
+    //TODO Save button
+    //TODO Load button?
     public static final int MIN_NODE_WIDTH = 40;
     public static final int MIN_NODE_HEIGHT = 10;
 

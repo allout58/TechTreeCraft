@@ -78,6 +78,6 @@ public class GuiAdvTextField extends GuiTextField
 
     public interface IntegrityCallback
     {
-        public String call(GuiAdvTextField field);
+        String call(GuiAdvTextField field);
     }
 }
