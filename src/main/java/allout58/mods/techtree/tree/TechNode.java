@@ -38,8 +38,6 @@ import java.util.List;
  */
 public class TechNode implements Comparable<TechNode>
 {
-    public static int NEXT_ID = 0;
-
     //Basic tree structure
     protected ArrayList<TechNode> parents = new ArrayList<TechNode>();
     protected ArrayList<TechNode> children = new ArrayList<TechNode>();
@@ -57,7 +55,6 @@ public class TechNode implements Comparable<TechNode>
      */
     public TechNode(int id)
     {
-        NEXT_ID = Math.max(id, NEXT_ID) + 1;
         this.id = id;
     }
 
@@ -189,6 +186,8 @@ public class TechNode implements Comparable<TechNode>
 
     public void setDepth(int depth)
     {
+        if (depth < 0)
+            throw new RuntimeException("Setting depth to negative: " + depth + "--" + toString());
         this.depth = depth;
     }
 
@@ -221,5 +220,11 @@ public class TechNode implements Comparable<TechNode>
     public int compareTo(TechNode o)
     {
         return Integer.compare(getId(), o.getId());
+    }
+
+    @Override
+    public String toString()
+    {
+        return String.format("%s - %s (%d)", super.toString(), this.name, this.id);
     }
 }

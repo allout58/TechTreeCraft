@@ -22,98 +22,74 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.client;
+package allout58.mods.techtree.client.elements;
+
+import net.minecraft.client.gui.Gui;
 
 /**
  * Created by James Hollowell on 12/16/2014.
  */
-public abstract class GuiElement
+public class GuiElementProgressBar extends GuiElement
 {
-    /**
-     * Element width in pixels
-     */
-    protected int width;
-    /**
-     * Elements height in pixels
-     */
-    protected int height;
-    /**
-     * The x position of this control.
-     */
-    protected int xPosition;
-    /**
-     * The y position of this control.
-     */
-    protected int yPosition;
-    /**
-     * True if this control is enabled, false to disable.
-     */
-    protected boolean enabled;
-    /**
-     * Hides the button completely if false.
-     */
-    protected boolean visible;
+    private static final float delta = .0001F;
 
-    public GuiElement(int width, int height, int xPosition, int yPosition)
+    private float max = 0;
+    private float current = 0;
+    private long lastTime = 0;
+    private int color = 0;
+    private int colorBorder = 0;
+    private int colorBackground = 0;
+
+    public GuiElementProgressBar(int width, int height, int xPosition, int yPosition, float max, int color, int colorBorder, int colorBackground)
     {
-        this.width = width;
-        this.height = height;
-        this.xPosition = xPosition;
-        this.yPosition = yPosition;
+        super(width, height, xPosition, yPosition);
+        this.max = max;
+        this.color = color;
+        this.colorBorder = colorBorder;
+        this.colorBackground = colorBackground;
     }
 
-    public abstract void doRender();
+    public void setMax(float max)
+    {
+        this.max = max;
+    }
+
+    @Override
+    public void doRender()
+    {
+        if (enabled && visible)
+        {
+            if (lastTime == 0)
+                current = max;
+            Gui.drawRect(xPosition, yPosition, xPosition + width, yPosition + height, colorBorder);
+            Gui.drawRect(xPosition + 1, yPosition + 1, xPosition + width - 1, yPosition + height - 1, colorBackground);
+            update();
+            lastTime = System.currentTimeMillis();
+            Gui.drawRect(xPosition + 1, yPosition + 1, xPosition + (int) (width * current) + 1, yPosition + height - 1, color);
+        }
+    }
 
     /*
-        Getters and setters
-     */
-    public int getWidth()
+    Taken with love from KJ4IPS:
+    https://github.com/KJ4IPS/Tomfoolrey/blob/master/src/main/java/haun/guru/fooling/gui/elements/GraidentBar.java
+    */
+    private void update()
     {
-        return width;
-    }
+        //This line disables the slewing for now...
+        //current = max;
+        if (current != max)
+        {
+            float diff = delta * (System.currentTimeMillis() - lastTime);
 
-    public void setWidth(int width)
-    {
-        this.width = width;
-    }
-
-    public int getHeight()
-    {
-        return height;
-    }
-
-    public void setHeight(int height)
-    {
-        this.height = height;
-    }
-
-    public int getxPosition()
-    {
-        return xPosition;
-    }
-
-    public void setxPosition(int xPosition)
-    {
-        this.xPosition = xPosition;
-    }
-
-    public int getyPosition()
-    {
-        return yPosition;
-    }
-
-    public void setyPosition(int yPosition)
-    {
-        this.yPosition = yPosition;
-    }
-
-    public void setEnabled(boolean enabled)
-    {
-        this.enabled = enabled;
-    }
-
-    public void setVisible(boolean visible)
-    {
-        this.visible = visible;
+            if (Math.abs(max - current) < diff)
+            {
+                current = max;
+            }
+            else
+            {
+                byte dir = (byte) ((max - current) > 0 ? 1 : -1);
+                current += diff * dir;
+            }
+        }
     }
 }

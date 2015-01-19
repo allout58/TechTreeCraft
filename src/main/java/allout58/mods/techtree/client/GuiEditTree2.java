@@ -24,7 +24,11 @@
 
 package allout58.mods.techtree.client;
 
+import allout58.mods.techtree.client.elements.AbstractGuiButtonNode;
+import allout58.mods.techtree.client.elements.GuiAdvTextField;
+import allout58.mods.techtree.client.elements.GuiButtonEditNode;
 import allout58.mods.techtree.config.Config;
+import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.TechNode;
 import allout58.mods.techtree.tree.TechTree;
 import allout58.mods.techtree.util.RenderingHelper;
@@ -33,6 +37,10 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,6 +48,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -52,6 +61,12 @@ import java.util.TreeSet;
 @SideOnly(Side.CLIENT)
 public class GuiEditTree2 extends GuiScreen
 {
+    public static final int MIN_NODE_WIDTH = 40;
+    public static final int MIN_NODE_HEIGHT = 10;
+
+    public static final int MAX_NODE_WIDTH = 60;
+    public static final int MAX_NODE_HEIGHT = 20;
+
     private static final Logger log = LogManager.getLogger();
 
     public int renderWidth = 300;
@@ -61,9 +76,23 @@ public class GuiEditTree2 extends GuiScreen
     protected Map<Integer, AbstractGuiButtonNode> buttons = new HashMap<Integer, AbstractGuiButtonNode>();
     protected GuiButtonEditNode selectedButton;
 
+    //Normal Buttons
     protected GuiButton deleteButton;
     protected GuiButton editButton;
     protected GuiButton newButton;
+
+    //Editing Elements
+    protected GuiButton doneButton;
+    protected GuiAdvTextField nameField;
+    protected GuiAdvTextField scienceField;
+    protected GuiAdvTextField descriptionField;
+    protected GuiAdvTextField itemNameField;
+    protected GuiAdvTextField itemMetaField;
+    protected List<ItemStack> editItems = new ArrayList<ItemStack>();
+
+    protected List<GuiAdvTextField> fieldList = new ArrayList<GuiAdvTextField>();
+
+    protected TechNode editingNode = null;
     protected boolean isEditing = false;
 
     protected List<Integer> xCoords;
@@ -83,6 +112,11 @@ public class GuiEditTree2 extends GuiScreen
     {
         super.initGui();
 
+        Keyboard.enableRepeatEvents(true);
+
+        int centerX = width / 2;
+
+        //Normal Buttons
         deleteButton = new GuiButton(-1, GuiTree.X_START + 5, GuiTree.Y_START + 5, 40, 20, "Delete");
         deleteButton.enabled = false;
         editButton = new GuiButton(-2, GuiTree.X_START + 50, GuiTree.Y_START + 5, 40, 20, "Edit");
@@ -94,6 +128,68 @@ public class GuiEditTree2 extends GuiScreen
         buttonList.add(editButton);
         buttonList.add(newButton);
 
+        //Editing Elements
+        doneButton = new GuiButton(-4, (width - GuiTree.X_START) / 2, height - GuiTree.Y_START - 22, 40, 20, "Done");
+        doneButton.visible = false;
+        buttonList.add(doneButton);
+        nameField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 20, 100, 13, "Name:");
+        scienceField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 40, 100, 13, "Required Science:");
+        scienceField.registerCallback(new GuiAdvTextField.IntegrityCallback()
+        {
+            @Override
+            public String call(GuiAdvTextField field)
+            {
+                try
+                {
+                    int i = Integer.parseInt(field.getText());
+                    return i > 0 ? "" : "Number must be > 0";
+                }
+                catch (NumberFormatException e)
+                {
+                    return "Input must be a number";
+                }
+            }
+        });
+        descriptionField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 60, 100, 13, "Description:");
+        itemNameField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 80, 100, 13, "Find Item:");
+        //TODO Use callback for for auto-complete?
+        itemMetaField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 100, 100, 13, "Item Meta:");
+        itemMetaField.registerCallback(new GuiAdvTextField.IntegrityCallback()
+        {
+            @Override
+            public String call(GuiAdvTextField field)
+            {
+                try
+                {
+                    int i = Integer.parseInt(field.getText());
+                    return i >= 0 ? "" : "Number must be >= 0";
+                }
+                catch (NumberFormatException e)
+                {
+                    return "Input must be a number";
+                }
+            }
+        });
+
+        fieldList.clear();
+        fieldList.add(nameField);
+        fieldList.add(scienceField);
+        fieldList.add(descriptionField);
+        fieldList.add(itemNameField);
+        fieldList.add(itemMetaField);
+
+        for (GuiTextField field : fieldList)
+        {
+            field.setCanLoseFocus(true);
+            field.setEnabled(true);
+            field.setEnableBackgroundDrawing(true);
+            field.setMaxStringLength(40);
+            field.setText("");
+            field.setVisible(false);
+        }
+        descriptionField.setMaxStringLength(1000);
+
+        //Node rendering setup
         buttons.clear();
 
         renderWidth = width - GuiTree.X_START * 2;
@@ -102,15 +198,15 @@ public class GuiEditTree2 extends GuiScreen
         xCoords = new ArrayList<Integer>(tree.getDepth());
 
         nodeWidth = (renderWidth - GuiTree.PAD_X * tree.getDepth()) / tree.getDepth();
-        nodeWidth = Math.max(nodeWidth, GuiTree.MIN_NODE_WIDTH);
-        nodeWidth = Math.min(nodeWidth, GuiTree.MAX_NODE_WIDTH);
+        nodeWidth = Math.max(nodeWidth, GuiEditTree2.MIN_NODE_WIDTH);
+        nodeWidth = Math.min(nodeWidth, GuiEditTree2.MAX_NODE_WIDTH);
 
         for (int i = 0; i < tree.getDepth() + 1; i++)
             xCoords.add(i, nodeWidth * i + GuiTree.PAD_X * (i + 1) + GuiTree.X_START);
 
         nodeHeight = (renderHeight - GuiTree.PAD_Y * tree.getMaxWidth()) / tree.getMaxWidth();
-        nodeHeight = Math.max(nodeHeight, GuiTree.MIN_NODE_HEIGHT);
-        nodeHeight = Math.min(nodeHeight, GuiTree.MAX_NODE_HEIGHT);
+        nodeHeight = Math.max(nodeHeight, GuiEditTree2.MIN_NODE_HEIGHT);
+        nodeHeight = Math.min(nodeHeight, GuiEditTree2.MAX_NODE_HEIGHT);
 
         yCoords = new ArrayList<Integer>(tree.getMaxWidth());
 
@@ -121,7 +217,6 @@ public class GuiEditTree2 extends GuiScreen
         {
             int treeWidth = list.size();
 
-            //int yStart = (height - HEIGHT) / 2 + ((tree.getMaxWidth() - treeWidth - 1) * nodeHeight + (treeWidth - tree.getMaxWidth()) * GuiTree.PAD_Y) / 2 + 15;
             int yLoc = (tree.getMaxWidth() - list.size()) / 2;
 
             Iterator<TechNode> it = list.iterator();
@@ -156,27 +251,50 @@ public class GuiEditTree2 extends GuiScreen
         }
         else
         {
-            switch (button.id)
+            try
             {
-                case -1:
-                    if (selectedButton != null)
-                        deleteNode(selectedButton.getNode());
-                    else
-                        log.error("Trying to delete with no selected node");
-                    break;
-                case -2:
-                    if (selectedButton != null)
-                        editNode(selectedButton.getNode());
-                    else
-                        log.error("Trying to edit with no selected node");
-                    break;
-                case -3:
-                    newNode();
-                    break;
-                default:
-                    log.error("Unknown button: " + button.id);
+                switch (button.id)
+                {
+                    case -1:
+                        if (selectedButton != null)
+                            deleteNode(selectedButton.getNode());
+                        else
+                            log.error("Trying to delete with no selected node");
+                        break;
+                    case -2:
+                        if (selectedButton != null)
+                            editNode(selectedButton.getNode());
+                        else
+                            log.error("Trying to edit with no selected node");
+                        break;
+                    case -3:
+                        newNode();
+                        break;
+                    case -4:
+                        if (scienceField.hasProblems())
+                            log.info("Error with fields, can't complete.");
+                        else
+                        {
+                            editingNode.setup(nameField.getText(), Integer.parseInt(scienceField.getText()), descriptionField.getText(), editItems.toArray(new ItemStack[editItems.size()]));
+                            disableEdit();
+                        }
+                        break;
+                    default:
+                        log.error("Unknown button: " + button.id);
+                }
+            }
+            catch (Exception e)
+            {
+                log.error(e);
             }
         }
+    }
+
+    @Override
+    public void onGuiClosed()
+    {
+        super.onGuiClosed();
+        Keyboard.enableRepeatEvents(false);
     }
 
     @Override
@@ -193,49 +311,60 @@ public class GuiEditTree2 extends GuiScreen
                 }
                 if (btn != selectedButton && btn.mousePressed(this.mc, mouseX, mouseY))
                 {
-                    if (button == 1)
+                    try
                     {
-                        if (selectedButton.getNode().getParents().contains(btn.getNode()))
-                        {
-                            selectedButton.getNode().getParents().remove(btn.getNode());
-                            selectedButton.getNode().getParentID().remove(Integer.valueOf(btn.getNode().getId()));
 
-                            btn.getNode().getChildren().remove(selectedButton.getNode());
-                        }
-                        else
+                        if (button == 1)
                         {
-                            selectedButton.getNode().addParentNode(btn.getNode());
-                            selectedButton.getNode().addParentNode(btn.getNode().getId());
+                            if (selectedButton.getNode().getParents().contains(btn.getNode()))
+                            {
+                                selectedButton.getNode().getParents().remove(btn.getNode());
+                                selectedButton.getNode().getParentID().remove(Integer.valueOf(btn.getNode().getId()));
 
-                            btn.getNode().addChildNode(selectedButton.getNode());
+                                btn.getNode().getChildren().remove(selectedButton.getNode());
+                            }
+                            else
+                            {
+                                selectedButton.getNode().addParentNode(btn.getNode());
+                                selectedButton.getNode().addParentNode(btn.getNode().getId());
+
+                                btn.getNode().addChildNode(selectedButton.getNode());
+                            }
                         }
+                        else if (button == 0)
+                        {
+                            if (btn.getNode().getParents().contains(selectedButton.getNode()))
+                            {
+                                btn.getNode().getParents().remove(selectedButton.getNode());
+                                btn.getNode().getParentID().remove(Integer.valueOf(selectedButton.getNode().getId()));
+
+                                selectedButton.getNode().getChildren().remove(btn.getNode());
+                            }
+                            else
+                            {
+                                btn.getNode().addParentNode(selectedButton.getNode());
+                                btn.getNode().addParentNode(selectedButton.getNode().getId());
+
+                                selectedButton.getNode().addChildNode(btn.getNode());
+                            }
+                        }
+                        selectedButton.isSelected = false;
+                        selectedButton = null;
+                        for (TechNode node : tree.getRealNodes())
+                        {
+                            //                            if (node.getParents().size() == 0)
+                            //                                log.info("Node with no parents. Sorry, but she's gone!");
+                            node.setDepth(0);
+                        }
+                        tree.setup();
+                        buttonList.clear();
+                        this.initGui();
+                        return;
                     }
-                    else if (button == 0)
+                    catch (Exception e)
                     {
-                        if (btn.getNode().getParents().contains(selectedButton.getNode()))
-                        {
-                            btn.getNode().getParents().remove(selectedButton.getNode());
-                            btn.getNode().getParentID().remove(Integer.valueOf(selectedButton.getNode().getId()));
-
-                            selectedButton.getNode().getChildren().remove(btn.getNode());
-                        }
-                        else
-                        {
-                            btn.getNode().addParentNode(selectedButton.getNode());
-                            btn.getNode().addParentNode(selectedButton.getNode().getId());
-
-                            selectedButton.getNode().addChildNode(btn.getNode());
-                        }
+                        log.error(e);
                     }
-                    selectedButton.isSelected = false;
-                    selectedButton = null;
-                    tree.undoFakeNodes();
-                    for (TechNode node : tree.getNodes())
-                        node.setDepth(0);
-                    tree.setup();
-                    buttonList.clear();
-                    this.initGui();
-                    return;
                 }
             }
         }
@@ -249,11 +378,24 @@ public class GuiEditTree2 extends GuiScreen
         deleteButton.enabled = editButton.enabled = selectedButton != null;
 
         drawBackground();
-        drawForeground();
+        if (!isEditing)
+            drawForegroundNormal();
 
+        for (GuiTextField field : fieldList)
+            field.drawTextBox();
         super.drawScreen(mouseX, mouseY, renderPartials);
 
         drawOverlay(mouseX, mouseY);
+        if (isEditing)
+        {
+            for (int i = 0; i < editItems.size(); i++)
+            {
+                GL11.glDisable(GL11.GL_ALPHA_TEST);
+                GL11.glDisable(GL11.GL_LIGHTING);
+                drawRect(GuiTree.X_START + 34 + 18 * i, GuiTree.Y_START + 120, GuiTree.X_START + 50 + 18 * i, GuiTree.Y_START + 136, 0xFFB0B0B0);
+                itemRender.renderItemIntoGUI(fontRendererObj, Minecraft.getMinecraft().renderEngine, editItems.get(i), GuiTree.X_START + 34 + 18 * i, GuiTree.Y_START + 120);
+            }
+        }
     }
 
     @Override
@@ -265,17 +407,73 @@ public class GuiEditTree2 extends GuiScreen
     @Override
     protected void keyTyped(char c, int key)
     {
-        super.keyTyped(c, key);
-        if (Keyboard.KEY_DELETE == key || Keyboard.KEY_BACK == key)
+        if (isEditing)
         {
-            if (selectedButton != null)
-                deleteNode(selectedButton.getNode());
+            if (key == Keyboard.KEY_ESCAPE)
+                disableEdit();
+            if (key == Keyboard.KEY_TAB && itemNameField.isFocused())
+                itemTabComplete();
+            if (key == Keyboard.KEY_RETURN && (itemNameField.isFocused() || itemMetaField.isFocused()))
+            {
+                Item it = (Item) Item.itemRegistry.getObject(itemNameField.getText());
+                if (it == null)
+                {
+                    //Make a mess nicely
+                    log.error("Bad item name");
+                }
+                else
+                {
+                    if (!itemMetaField.hasProblems())
+                    {
+                        int meta = Integer.parseInt(itemMetaField.getText());
+                        editItems.add(new ItemStack(it, 1, meta));
+                    }
+                }
+            }
+            for (GuiTextField field : fieldList)
+            {
+                field.textboxKeyTyped(c, key);
+            }
         }
-        else if (c == 'f')
+        else
         {
-            tree.undoFakeNodes();
-            initGui();
+            super.keyTyped(c, key);
+            try
+            {
+                if (Keyboard.KEY_DELETE == key || Keyboard.KEY_BACK == key)
+                {
+                    if (selectedButton != null)
+                        deleteNode(selectedButton.getNode());
+                }
+                else if (c == 'f')
+                {
+                    tree.undoFakeNodes();
+                    buttonList.clear();
+                    this.initGui();
+                }
+                else if (c == 'n')
+                {
+                    newNode();
+                }
+            }
+            catch (Exception e)
+            {
+                log.error(e);
+            }
         }
+    }
+
+    @Override
+    public void mouseClicked(int btn, int x, int y)
+    {
+        super.mouseClicked(btn, x, y);
+        for (GuiTextField field : fieldList)
+            field.mouseClicked(btn, x, y);
+    }
+
+    private void itemTabComplete()
+    {
+
     }
 
     protected void drawBackground()
@@ -283,7 +481,7 @@ public class GuiEditTree2 extends GuiScreen
         drawRect(GuiTree.X_START, GuiTree.Y_START, GuiTree.X_START + renderWidth, GuiTree.Y_START + renderHeight, Config.INSTANCE.client.colorBackground);
     }
 
-    protected void drawForeground()
+    protected void drawForegroundNormal()
     {
         final int xDiff = GuiTree.PAD_X / 2;
         final int yDiff = GuiTree.PAD_Y / 2;
@@ -350,28 +548,58 @@ public class GuiEditTree2 extends GuiScreen
     protected void deleteNode(TechNode node)
     {
         if (node != null)
-            for (TechNode child : node.getChildren())
-            {
-                for (TechNode parent : node.getParents())
-                {
-                    child.addParentNode(parent);
-                    child.addParentNode(parent.getId());
-
-                    parent.addChildNode(child);
-
-                    parent.getChildren().remove(node);
-                }
-                child.getParents().remove(node);
-            }
+        {
+            tree.remove(node);
+            buttonList.clear();
+            this.initGui();
+        }
     }
 
     protected void newNode()
     {
-        //editNode(new TechNode());
+        TechNode node = new TechNode(tree.getNextID());
+        node.setDepth(2);
+        node.setup("New Node", -1, "New node, please edit", new ItemStack[] { new ItemStack(Blocks.fire) });
+        tree.add(node);
+        buttonList.clear();
+        this.initGui();
+        editNode(node);
     }
 
     protected void editNode(TechNode node)
     {
+        editingNode = node;
         isEditing = true;
+        updateStates();
+        nameField.setText(node.getName());
+        descriptionField.setText(node.getDescription());
+        scienceField.setText(String.valueOf(node.getScienceRequired()));
+        editItems.addAll(Arrays.asList(node.getLockedItems()));
+    }
+
+    protected void disableEdit()
+    {
+        editingNode = null;
+        isEditing = false;
+        updateStates();
+        editItems.clear();
+    }
+
+    protected void updateStates()
+    {
+        Keyboard.enableRepeatEvents(isEditing);
+
+        deleteButton.visible = editButton.visible = newButton.visible = !isEditing;
+        for (AbstractGuiButtonNode btn : buttons.values())
+            if (!(btn.getNode() instanceof FakeNode))
+                btn.visible = !isEditing;
+
+        doneButton.visible = isEditing;
+        for (GuiTextField field : fieldList)
+        {
+            field.setVisible(isEditing);
+            field.setText("");
+        }
+        itemMetaField.setText("0");
     }
 }

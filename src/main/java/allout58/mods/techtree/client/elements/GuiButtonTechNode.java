@@ -22,7 +22,7 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.client;
+package allout58.mods.techtree.client.elements;
 
 import allout58.mods.techtree.config.Config;
 import allout58.mods.techtree.research.ResearchClient;

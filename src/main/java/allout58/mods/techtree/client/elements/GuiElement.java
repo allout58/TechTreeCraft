@@ -22,52 +22,98 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.client;
-
-import allout58.mods.techtree.tree.FakeNode;
-import allout58.mods.techtree.tree.TechNode;
-import net.minecraft.client.gui.GuiButton;
+package allout58.mods.techtree.client.elements;
 
 /**
- * Created by James Hollowell on 1/2/2015.
+ * Created by James Hollowell on 12/16/2014.
  */
-public abstract class AbstractGuiButtonNode extends GuiButton
+public abstract class GuiElement
 {
-    protected TechNode node;
+    /**
+     * Element width in pixels
+     */
+    protected int width;
+    /**
+     * Elements height in pixels
+     */
+    protected int height;
+    /**
+     * The x position of this control.
+     */
+    protected int xPosition;
+    /**
+     * The y position of this control.
+     */
+    protected int yPosition;
+    /**
+     * True if this control is enabled, false to disable.
+     */
+    protected boolean enabled;
+    /**
+     * Hides the button completely if false.
+     */
+    protected boolean visible;
 
-    public AbstractGuiButtonNode(int id, int x, int y, int width, int height, TechNode node)
+    public GuiElement(int width, int height, int xPosition, int yPosition)
     {
-        super(id, x, y, width, height, "");
-        this.node = node;
-        if (node instanceof FakeNode)
-        {
-            this.visible = this.enabled = false;
-            this.height = 2;
-        }
+        this.width = width;
+        this.height = height;
+        this.xPosition = xPosition;
+        this.yPosition = yPosition;
     }
 
-    public TechNode getNode()
+    public abstract void doRender();
+
+    /*
+        Getters and setters
+     */
+    public int getWidth()
     {
-        return node;
+        return width;
     }
 
-    public int getInX()
+    public void setWidth(int width)
+    {
+        this.width = width;
+    }
+
+    public int getHeight()
+    {
+        return height;
+    }
+
+    public void setHeight(int height)
+    {
+        this.height = height;
+    }
+
+    public int getxPosition()
     {
         return xPosition;
     }
 
-    public int getInY()
+    public void setxPosition(int xPosition)
     {
-        return (yPosition * 2 + height) / 2;
+        this.xPosition = xPosition;
     }
 
-    public int getOutX()
+    public int getyPosition()
     {
-        return xPosition + width;
+        return yPosition;
     }
 
-    public int getOutY()
+    public void setyPosition(int yPosition)
     {
-        return (yPosition * 2 + height) / 2;
+        this.yPosition = yPosition;
+    }
+
+    public void setEnabled(boolean enabled)
+    {
+        this.enabled = enabled;
+    }
+
+    public void setVisible(boolean visible)
+    {
+        this.visible = visible;
     }
 }

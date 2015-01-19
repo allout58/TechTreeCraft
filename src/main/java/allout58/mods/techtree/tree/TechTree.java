@@ -48,6 +48,8 @@ public class TechTree
     private Set<TechNode> nodes = new TreeSet<TechNode>();
     private Map<Integer, TechNode> nodeMap = new HashMap<Integer, TechNode>();
 
+    private int nextID = 0;
+
     public TechTree(TechNode head)
     {
         this.head = head;
@@ -64,12 +66,18 @@ public class TechTree
         doMaxDepth(head, 0);
         for (int i = 0; i < depth; i++)
             list.add(new TreeSet<TechNode>());
-        doMaxWidth();
+        //        doMaxWidth();
         log.info("Depth found: " + depth);
-        log.info("Max Width found: " + maxWidth);
+        //        log.info("Max Width found: " + maxWidth);
         doMaxWidth2();
+        nextID = nodes.size() + 1;
         log.info("Max width 2: " + maxWidth);
         doFakeNodes();
+    }
+
+    public int getNextID()
+    {
+        return nextID++;
     }
 
     private void doMaxDepth(TechNode node, int currDepth)
@@ -96,18 +104,23 @@ public class TechTree
         }
     }
 
-    private void doMaxWidth()
+    //    private void doMaxWidth()
+    //    {
+    //        for (TechNode node : nodes)
+    //        {
+    //            list.get(node.getDepth() - 1).add(node);
+    //        }
+    //        for (int i = 0; i < depth; i++)
+    //            maxWidth = Math.max(list.get(i).size(), maxWidth);
+    //    }
+
+    private void doMaxWidth2()
     {
+        maxWidth = 0;
         for (TechNode node : nodes)
         {
             list.get(node.getDepth() - 1).add(node);
         }
-        for (int i = 0; i < depth; i++)
-            maxWidth = Math.max(list.get(i).size(), maxWidth);
-    }
-
-    private void doMaxWidth2()
-    {
         for (TechNode node : nodes)
             maxWidth = Math.max(maxWidth, node.getChildren().size());
     }
@@ -143,8 +156,10 @@ public class TechTree
     {
         //TODO TEST: Handle more than one depth difference between parents and children
         List<TechNode> toAdd = new ArrayList<TechNode>();
+        int fakeNodeID = -1;
         do
         {
+            toAdd.clear();
             for (TechNode node : nodes)
             {
                 for (int i = 0; i < node.getParents().size(); i++)
@@ -152,7 +167,7 @@ public class TechTree
                     TechNode parent = node.getParents().get(i);
                     if (parent.getDepth() != node.getDepth() - 1)
                     {
-                        TechNode ne = new FakeNode(parent, node, TechNode.NEXT_ID++);
+                        TechNode ne = new FakeNode(parent, node, fakeNodeID--);
 
                         ne.setDepth(node.getDepth() - 1);
                         list.get(ne.getDepth() - 1).add(ne);
@@ -161,7 +176,7 @@ public class TechTree
                         node.getParents().remove(parent);
                         node.getParents().add(ne);
 
-                        node.getParentID().remove(parent.getId());
+                        node.getParentID().remove((Integer) parent.getId());
                         node.getParentID().add(ne.getId());
 
                         parent.getChildren().remove(node);
@@ -170,7 +185,6 @@ public class TechTree
                 }
             }
             nodes.addAll(toAdd);
-            toAdd.clear();
         } while (toAdd.size() > 0);
     }
 
@@ -208,5 +222,54 @@ public class TechTree
     public TechNode getNodeByID(int id)
     {
         return nodeMap.get(id);
+    }
+
+    public void add(TechNode node)
+    {
+        log.info("Adding new node...");
+        head.addChildNode(node);
+        node.addParentNode(head);
+        node.addParentNode(head.getId());
+        nodeMap.put(node.getId(), node);
+        nodes.add(node);
+        for (int d = depth; d < node.getDepth(); d++)
+            list.add(new TreeSet<TechNode>());
+        list.get(node.getDepth() - 1).add(node);
+        depth = list.size();
+        log.info("New depth: " + depth);
+        doMaxWidth2();
+        log.info("New max width: " + maxWidth);
+        //        setup();
+    }
+
+    public void remove(TechNode node)
+    {
+        log.info("Removing node...");
+        for (TechNode parent : node.getParents())
+        {
+            for (TechNode child : node.getChildren())
+            {
+                child.addParentNode(parent);
+                child.addParentNode(parent.getId());
+
+                parent.addChildNode(child);
+
+                child.getParents().remove(node);
+            }
+            parent.getChildren().remove(node);
+        }
+        nodes.remove(node);
+        nodeMap.remove(node.getId());
+        int d = node.getDepth() - 1;
+        list.get(d).remove(node);
+        if (list.get(d).size() == 0)
+        {
+            list.remove(node.getDepth() - 1);
+        }
+
+        depth = list.size();
+        log.info("New depth: " + depth);
+        doMaxWidth2();
+        log.info("New max width: " + maxWidth);
     }
 }

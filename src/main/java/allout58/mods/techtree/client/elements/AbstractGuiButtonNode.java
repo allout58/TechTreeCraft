@@ -22,36 +22,52 @@
  * SOFTWARE.                                                                       *
  ***********************************************************************************/
 
-package allout58.mods.techtree.client;
+package allout58.mods.techtree.client.elements;
 
-import allout58.mods.techtree.client.elements.AbstractGuiButtonNode;
-import allout58.mods.techtree.config.Config;
 import allout58.mods.techtree.tree.FakeNode;
 import allout58.mods.techtree.tree.TechNode;
-import allout58.mods.techtree.util.RenderingHelper;
-
-import java.util.Map;
+import net.minecraft.client.gui.GuiButton;
 
 /**
- * Created by James Hollowell on 1/1/2015.
+ * Created by James Hollowell on 1/2/2015.
  */
-public class TreeRenderingHelper
+public abstract class AbstractGuiButtonNode extends GuiButton
 {
-    public static void renderConnectorLines(Map<Integer, AbstractGuiButtonNode> buttons)
+    protected TechNode node;
+
+    public AbstractGuiButtonNode(int id, int x, int y, int width, int height, TechNode node)
     {
-        for (AbstractGuiButtonNode btn : buttons.values())
+        super(id, x, y, width, height, "");
+        this.node = node;
+        if (node instanceof FakeNode)
         {
-            TechNode btnNode = btn.getNode();
-            for (int node : btnNode.getParentID())
-            {
-                AbstractGuiButtonNode parent = buttons.get(node);
-                if (parent != null)
-                    RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), parent.getOutX(), parent.getOutY(), .75f, Config.INSTANCE.client.colorConnectors);
-            }
-            if (btnNode.getClass().equals(FakeNode.class))
-            {
-                RenderingHelper.draw2DLine(btn.getInX(), btn.getInY(), btn.getOutX(), btn.getOutY(), .75f, Config.INSTANCE.client.colorConnectors);
-            }
+            this.visible = this.enabled = false;
+            this.height = 2;
         }
+    }
+
+    public TechNode getNode()
+    {
+        return node;
+    }
+
+    public int getInX()
+    {
+        return xPosition;
+    }
+
+    public int getInY()
+    {
+        return (yPosition * 2 + height) / 2;
+    }
+
+    public int getOutX()
+    {
+        return xPosition + width;
+    }
+
+    public int getOutY()
+    {
+        return (yPosition * 2 + height) / 2;
     }
 }

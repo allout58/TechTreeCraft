@@ -24,6 +24,8 @@
 
 package allout58.mods.techtree.client;
 
+import allout58.mods.techtree.client.elements.AbstractGuiButtonNode;
+import allout58.mods.techtree.client.elements.GuiButtonTechNode;
 import allout58.mods.techtree.config.Config;
 import allout58.mods.techtree.network.NetworkManager;
 import allout58.mods.techtree.network.message.ChangeNodeMode;
