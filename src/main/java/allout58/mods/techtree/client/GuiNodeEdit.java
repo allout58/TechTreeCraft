@@ -1,3 +1,27 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015 allout58
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package allout58.mods.techtree.client;
 
 import allout58.mods.techtree.client.elements.GuiAdvTextField;
@@ -47,6 +71,7 @@ public class GuiNodeEdit extends GuiScreen
 
     public GuiNodeEdit(TechNode editingNode, GuiScreen parent)
     {
+        super();
         this.parent = parent;
         this.editingNode = editingNode;
     }
@@ -71,10 +96,7 @@ public class GuiNodeEdit extends GuiScreen
 
         nameField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 20, 100, 13, "Name:");
         scienceField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 40, 100, 13, "Required Science:");
-        scienceField.registerCallback(new GuiAdvTextField.IntegrityCallback()
-        {
-            @Override
-            public String call(GuiAdvTextField field)
+        scienceField.registerCallback((field) ->
             {
                 try
                 {
@@ -85,43 +107,33 @@ public class GuiNodeEdit extends GuiScreen
                 {
                     return "Input must be a number";
                 }
-            }
-        });
+            });
         descriptionField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 60, 100, 13, "Description:");
         itemNameField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 80, 100, 13, "Find Item:");
-        itemNameField.registerCallback(new GuiAdvTextField.IntegrityCallback()
-                                       {
-                                           @Override
-                                           public String call(GuiAdvTextField field)
-                                           {
-                                               findItems.clear();
-                                               for (Object search : Item.itemRegistry.getKeys())
-                                               {
-                                                   if (((String) search).startsWith(field.getText()))
-                                                       findItems.add((String) search);
-                                               }
-                                               if (!findItems.isEmpty())
-                                                   field.setText(findItems.get(0));
-                                               return null;
-                                           }
-                                       }
-        );
+        itemNameField.registerCallback((field) ->
+        {
+            findItems.clear();
+            for (Object search : Item.itemRegistry.getKeys())
+            {
+                if (((String) search).startsWith(field.getText()))
+                    findItems.add((String) search);
+            }
+            if (!findItems.isEmpty())
+                field.setText(findItems.get(0));
+            return null;
+        });
         //TODO Use callback for for auto-complete?
         itemMetaField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 100, 100, 13, "Item Meta:");
-        itemMetaField.registerCallback(new GuiAdvTextField.IntegrityCallback()
+        itemMetaField.registerCallback((field) ->
         {
-            @Override
-            public String call(GuiAdvTextField field)
+            try
             {
-                try
-                {
-                    int i = Integer.parseInt(field.getText());
-                    return i >= 0 ? "" : "Number must be >= 0";
-                }
-                catch (NumberFormatException e)
-                {
-                    return "Input must be a number";
-                }
+                int i = Integer.parseInt(field.getText());
+                return i >= 0 ? "" : "Number must be >= 0";
+            }
+            catch (NumberFormatException e)
+            {
+                return "Input must be a number";
             }
         });
 
@@ -254,5 +266,4 @@ public class GuiNodeEdit extends GuiScreen
     {
         this.mc.displayGuiScreen(parent);
     }
-
 }
