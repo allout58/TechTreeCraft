@@ -96,7 +96,10 @@ public class GuiNodeEdit extends GuiScreen
 
         nameField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 20, 100, 13, "Name:");
         scienceField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 40, 100, 13, "Required Science:");
-        scienceField.registerCallback((field) ->
+        scienceField.registerCallback(new GuiAdvTextField.IntegrityCallback()
+        {
+            @Override
+            public String call(GuiAdvTextField field)
             {
                 try
                 {
@@ -107,33 +110,43 @@ public class GuiNodeEdit extends GuiScreen
                 {
                     return "Input must be a number";
                 }
-            });
+            }
+        });
         descriptionField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 60, 100, 13, "Description:");
         itemNameField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 80, 100, 13, "Find Item:");
-        itemNameField.registerCallback((field) ->
-        {
-            findItems.clear();
-            for (Object search : Item.itemRegistry.getKeys())
-            {
-                if (((String) search).startsWith(field.getText()))
-                    findItems.add((String) search);
-            }
-            if (!findItems.isEmpty())
-                field.setText(findItems.get(0));
-            return null;
-        });
+        itemNameField.registerCallback(new GuiAdvTextField.IntegrityCallback()
+                                       {
+                                           @Override
+                                           public String call(GuiAdvTextField field)
+                                           {
+                                               findItems.clear();
+                                               for (Object search : Item.itemRegistry.getKeys())
+                                               {
+                                                   if (((String) search).startsWith(field.getText()))
+                                                       findItems.add((String) search);
+                                               }
+                                               if (!findItems.isEmpty())
+                                                   field.setText(findItems.get(0));
+                                               return null;
+                                           }
+                                       }
+        );
         //TODO Use callback for for auto-complete?
         itemMetaField = new GuiAdvTextField(fontRendererObj, centerX - 50, GuiTree.Y_START + 100, 100, 13, "Item Meta:");
-        itemMetaField.registerCallback((field) ->
+        itemMetaField.registerCallback(new GuiAdvTextField.IntegrityCallback()
         {
-            try
+            @Override
+            public String call(GuiAdvTextField field)
             {
-                int i = Integer.parseInt(field.getText());
-                return i >= 0 ? "" : "Number must be >= 0";
-            }
-            catch (NumberFormatException e)
-            {
-                return "Input must be a number";
+                try
+                {
+                    int i = Integer.parseInt(field.getText());
+                    return i >= 0 ? "" : "Number must be >= 0";
+                }
+                catch (NumberFormatException e)
+                {
+                    return "Input must be a number";
+                }
             }
         });
 
